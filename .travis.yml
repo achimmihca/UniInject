@@ -1,0 +1,49 @@
+language: shell
+env:
+  global:
+  - BUILD_NAME="UniInject"
+  - UNITYCI_PROJECT_NAME="UniInject"
+  
+services:
+- docker
+  
+# Only run builds on pushes to the main branch
+branches:
+  only:
+  - main
+
+# Send email notifications when the build changes from succeeding to broken and vice versa
+notifications:
+  email:
+    on_success: change
+    on_failure: change
+
+before_install:
+  - chmod +x ./Tools/Travis/before_script.sh
+  - chmod +x ./Tools/Travis/test.sh
+  - chmod +x ./Tools/Travis/build.sh
+  - chmod +x ./Tools/Travis/docker_test.sh
+  - chmod +x ./Tools/Travis/docker_build.sh
+  - chmod +x ./Tools/DownloadDependencies/*.sh
+  - export -f travis_fold
+  - (cd Tools/DownloadDependencies/; sh download-dependencies.sh)
+  - docker pull $IMAGE_NAME
+
+jobs:
+  include:
+  - stage: test
+    script: "./Tools/Travis/docker_test.sh"
+    env: TEST_PLATFORM=editmode IMAGE_NAME=gableroux/unity3d:2020.1.5f1
+    addons:
+      artifacts:
+        s3_region: "eu-west-1"
+        paths:
+        - "$(pwd)/$TEST_PLATFORM-results.xml"
+  - stage: test
+    script: "./Tools/Travis/docker_test.sh"
+    env: TEST_PLATFORM=playmode IMAGE_NAME=gableroux/unity3d:2020.1.5f1
+    addons:
+      artifacts:
+        s3_region: "eu-west-1"
+        paths:
+        - "$(pwd)/$TEST_PLATFORM-results.xml"
