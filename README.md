@@ -183,7 +183,7 @@ The Menu Item **UniInject > Check current scene** will perform the following che
 
 # Digging deeper
 
-The tests for UniInject are a good way to get an idea what can and cannot be done using UniInject.
+The [tests](https://github.com/achimmihca/UniInject/tree/main/UniInject/Assets/Editor/Tests) for UniInject are a good way to get an idea what can and cannot be done using UniInject.
 
 # History
 
