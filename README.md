@@ -1,5 +1,6 @@
 
 [![Travis Build Status](https://travis-ci.org/achimmihca/UniInject.svg?branch=main)](https://travis-ci.org/achimmihca/UniInject)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/ebc1ffb98b524a38a9a5f93aa7254246)](https://www.codacy.com/gh/achimmihca/UniInject/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=achimmihca/UniInject&amp;utm_campaign=Badge_Grade)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/achimmihca/UniInject/blob/main/LICENSE)
 
 # Introduction
