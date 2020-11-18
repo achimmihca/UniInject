@@ -9,7 +9,7 @@ export BUILD_PATH=/project/Builds/$BUILD_TARGET/
 mkdir -p $BUILD_PATH
 
 /opt/Unity/Editor/Unity \
-    -projectPath "$(pwd)/UltraStar Play" \
+    -projectPath "$(pwd)/UniInject" \
     -quit \
     -batchmode \
     -nographics \
@@ -36,4 +36,4 @@ fi
 ls -la "$BUILD_PATH"
 
 
-tar -zcf /project/UltraStarPlay-build.tar.gz /project/Builds/
+tar -zcf /project/UniInject-build.tar.gz /project/Builds/
