@@ -181,11 +181,11 @@ The Menu Item **UniInject > Check current scene** will perform the following che
 - There is a binding for every value that should be injected
 - Fields marked with [InjectedInInspector] actually have a value
 
-## Digging deeper
+# Digging deeper
 
 The tests for UniInject are a good way to get an idea what can and cannot be done using UniInject.
 
-## History
+# History
 
 UniInject has been created originally for [UltraStar Play](https://github.com/UltraStar-Deluxe/Play).
 If you like singing, karaoke, or SingStar then go check it out ;)
