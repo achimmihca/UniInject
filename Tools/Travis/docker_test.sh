@@ -3,6 +3,7 @@
 set -e
 
 docker run \
+  -e UNITY_LICENSE_CONTENT \
   -e TEST_PLATFORM \
   -w /project/ \
   -v $(pwd):/project/ \

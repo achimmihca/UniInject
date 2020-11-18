@@ -5,6 +5,7 @@ set -e
 travis_fold start "unity.docker.build"
 
 docker run \
+  -e UNITY_LICENSE_CONTENT \
   -e BUILD_NAME \
   -e BUILD_TARGET \
   -w /project/ \
