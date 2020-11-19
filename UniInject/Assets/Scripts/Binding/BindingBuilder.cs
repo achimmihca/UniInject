@@ -97,35 +97,35 @@ namespace UniInject
             public void ToExistingInstance<T>(Func<T> instanceGetter)
             {
                 IProvider provider = new ExistingInstanceProvider<T>(instanceGetter);
-                IBinding binding = new Binding(key, provider);
-                this.binding = binding;
+                IBinding newBinding = new Binding(key, provider);
+                binding = newBinding;
             }
 
             public void ToExistingInstance<T>(T instance)
             {
                 IProvider provider = new ExistingInstanceProvider<T>(instance);
-                IBinding binding = new Binding(key, provider);
-                this.binding = binding;
+                IBinding newBinding = new Binding(key, provider);
+                binding = newBinding;
             }
 
             public void ToNewInstancesOfType(Type type)
             {
                 IProvider provider = new NewInstancesProvider(type);
-                IBinding binding = new Binding(key, provider);
-                this.binding = binding;
+                IBinding newBinding = new Binding(key, provider);
+                binding = newBinding;
             }
 
             public void ToSingleInstanceOfType(Type type)
             {
                 IProvider provider = new SingleInstanceProvider(type);
-                IBinding binding = new Binding(key, provider);
-                this.binding = binding;
+                IBinding newBinding = new Binding(key, provider);
+                binding = newBinding;
             }
 
             public void ToProvider(IProvider provider)
             {
-                IBinding binding = new Binding(key, provider);
-                this.binding = binding;
+                IBinding newBinding = new Binding(key, provider);
+                binding = newBinding;
             }
 
             public object GetKey()

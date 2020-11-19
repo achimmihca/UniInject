@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace UniInject
 {
-    public class UniInjectMenuItems
+    public static class UniInjectMenuItems
     {
 
         [MenuItem("UniInject/Check current scene &v")]

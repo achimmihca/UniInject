@@ -9,8 +9,9 @@ using UnityEngine;
 
 namespace UniInject
 {
-    public class UniInjectUtils
+    public static class UniInjectUtils
     {
+        // Set to "true" to see debug output.
         private static readonly bool logDebugInfos;
 
         // Global injector

@@ -203,13 +203,13 @@ namespace UniInject
                 }
                 else
                 {
-                    throw new Exception($"Cannot inject member {script.name}.{memberInfo}."
+                    throw new InjectionException($"Cannot inject member {script.name}.{memberInfo}."
                         + $" Only Fields and Properties are supported for component injection via Unity methods.");
                 }
             }
             else if (!isOptional)
             {
-                throw new Exception($"Cannot inject member {script.name}.{memberInfo.Name}."
+                throw new InjectionException($"Cannot inject member {script.name}.{memberInfo.Name}."
                     + $" No component of type {componentType} found using method {searchMethod}");
             }
         }
