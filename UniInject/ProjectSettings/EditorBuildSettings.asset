@@ -4,5 +4,8 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/DependencyInjectionDemo/DependencyInjectionDemoScene.unity
+    guid: d53741b1bceb47142b39bf47bcdef3ec
   m_configObjects: {}
