@@ -3,7 +3,7 @@
 set -x
 
 /opt/Unity/Editor/Unity \
-    -projectPath "$(pwd)/UltraStar Play" \
+    -projectPath "$(pwd)/UniInject" \
     -runTests \
     -testPlatform $TEST_PLATFORM \
     -testResults $(pwd)/$TEST_PLATFORM-results.xml \
