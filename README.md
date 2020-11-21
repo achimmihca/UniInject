@@ -102,7 +102,7 @@ This will be done before any Start() method is called by Unity.
 ...
 using UniInject;
 
-public class MyCoolScript2 : INeedInjection
+public class MyCoolScript2 : MonoBehaviour, INeedInjection
 {
     [Inject]
     private SceneNavigator sceneNavigator;
@@ -151,7 +151,7 @@ See also the [demo binder](https://github.com/achimmihca/UniInject/blob/main/Uni
 ...
 using UniInject;
 
-public class MyCoolScriptThatInstantiatesAnotherScript : MonoBehaviour
+public class MyCoolScriptThatInstantiatesAnotherScript : MonoBehaviour, INeedInjection
 {
     [InjectedInInspector]
     public AnotherScript anotherScriptPrefab;
