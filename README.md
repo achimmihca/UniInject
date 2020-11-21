@@ -186,6 +186,10 @@ The Menu Item **UniInject > Check current scene** will perform the following che
 
 The [tests](https://github.com/achimmihca/UniInject/tree/main/UniInject/Assets/Editor/Tests) for UniInject are a good way to get an idea what can and cannot be done using UniInject.
 
+# Contributing
+
+See the wiki page: https://github.com/achimmihca/UniInject/wiki/Contributing
+
 # History
 
 UniInject has been created originally for [UltraStar Play](https://github.com/UltraStar-Deluxe/Play).
