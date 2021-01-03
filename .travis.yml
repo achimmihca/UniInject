@@ -33,7 +33,7 @@ jobs:
   include:
   - stage: test
     script: "./Tools/Travis/docker_test.sh"
-    env: TEST_PLATFORM=editmode IMAGE_NAME=gableroux/unity3d:2020.1.5f1
+    env: TEST_PLATFORM=editmode IMAGE_NAME=unityci/editor:ubuntu-2020.2.1f1-linux-il2cpp-0.7.0
     addons:
       artifacts:
         s3_region: "eu-west-1"
@@ -41,7 +41,7 @@ jobs:
         - "$(pwd)/$TEST_PLATFORM-results.xml"
   - stage: test
     script: "./Tools/Travis/docker_test.sh"
-    env: TEST_PLATFORM=playmode IMAGE_NAME=gableroux/unity3d:2020.1.5f1
+    env: TEST_PLATFORM=playmode IMAGE_NAME=unityci/editor:ubuntu-2020.2.1f1-linux-il2cpp-0.7.0
     addons:
       artifacts:
         s3_region: "eu-west-1"

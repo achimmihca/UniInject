@@ -2,7 +2,7 @@
 
 set -x
 
-/opt/Unity/Editor/Unity \
+/opt/unity/Editor/Unity \
     -projectPath "$(pwd)/UniInject" \
     -runTests \
     -testPlatform $TEST_PLATFORM \
