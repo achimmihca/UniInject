@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UIElements;
 
 namespace UniInject
 {
@@ -20,12 +21,49 @@ namespace UniInject
 
         public bool logTime;
 
+        public static SceneInjectionManager Instance
+        {
+            get
+            {
+                GameObject gameObject = GameObject.FindGameObjectWithTag("SceneInjectionManager");
+                if (gameObject != null)
+                {
+                    return gameObject.GetComponent<SceneInjectionManager>();
+                }
+                return null;
+            }
+        }
+
         void Awake()
+        {
+            DoInjection();
+        }
+
+        void OnDestroy()
+        {
+            if (UniInjectUtils.SceneInjector == sceneInjector)
+            {
+                UniInjectUtils.SceneInjector = null;
+            }
+        }
+
+        public void DoInjection()
         {
             Stopwatch stopwatch = CreateAndStartStopwatch();
 
             sceneInjector = UniInjectUtils.CreateInjector();
             UniInjectUtils.SceneInjector = sceneInjector;
+
+            // Try to find a UIDocument
+            GameObject uiDocumentGameObject = GameObject.FindGameObjectWithTag("UIDocument");
+            if (uiDocumentGameObject != null)
+            {
+                UIDocument uiDocument = uiDocumentGameObject.GetComponent<UIDocument>();
+                if (uiDocument != null)
+                {
+                    sceneInjector.RootVisualElement = uiDocument.rootVisualElement;
+                }
+            }
 
             // Bind the scene injector itself.
             // This way it can be injected at the scene start
@@ -49,14 +87,6 @@ namespace UniInject
             foreach (ISceneInjectionFinishedListener listener in sceneInjectionFinishedListeners)
             {
                 listener.OnSceneInjectionFinished();
-            }
-        }
-
-        void OnDestroy()
-        {
-            if (UniInjectUtils.SceneInjector == sceneInjector)
-            {
-                UniInjectUtils.SceneInjector = null;
             }
         }
 

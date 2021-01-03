@@ -1,6 +1,7 @@
 ﻿using UniInject;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.UIElements;
 using static UniInject.UniInjectUtils;
 
 // Ignore warnings about unassigned fields.
@@ -41,7 +42,7 @@ public class ScriptThatNeedsInjection : MonoBehaviour, INeedInjection
 
     // Inject optional
     [Inject(optional = true)]
-    private Image optionalImage;
+    private UnityEngine.UI.Image optionalImage;
 
     [Inject(searchMethod = SearchMethods.GetComponentInChildren, optional = true)]
     private Text uiText;
@@ -49,6 +50,12 @@ public class ScriptThatNeedsInjection : MonoBehaviour, INeedInjection
     // Inject property using a specific key instead of the type.
     [Inject(key = "author")]
     private string NameOfAuthor { get; set; }
+
+    // Inject VisualElement by name (using '#' as prefix) or by class (using '.' as prefix).
+    // By default, the VisualElement will be searched starting from the UIDocument, that is tagged as "UIDocument" (see SceneInjectionManager).
+    // To use another root VisualElement for the search, set Injector.RootVisualElement.
+    [Inject(key = "#theLabel")]
+    private UnityEngine.UIElements.Label theUxmlLabel { get; set; }
 
     // The instance of this field is created during injection.
     // Depending how the interface is bound (singleton or not),
@@ -101,6 +108,8 @@ public class ScriptThatNeedsInjection : MonoBehaviour, INeedInjection
 
         Debug.Log("The bound int: " + SceneInjector.GetValueForInjectionKey<int>());
         Debug.Log("The bound instance of an interface: " + SceneInjector.GetValueForInjectionKey<IDependencyInjectionDemoInterface>());
+
+        Debug.Log("theUxmlLabel.text: " + theUxmlLabel.text);
 
         Debug.Log("Injector:" + injector);
     }

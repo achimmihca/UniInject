@@ -1,3 +1,16 @@
 {
-    "name": "UniInject"
+    "name": "UniInject",
+    "references": [
+        "UnityEngine.UIElementsModule",
+        "UnityEngine.UIElementsGameObjectsModule"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }

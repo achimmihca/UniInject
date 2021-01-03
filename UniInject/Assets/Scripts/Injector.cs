@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace UniInject
 {
@@ -11,6 +12,9 @@ namespace UniInject
         // The parent Injector.
         // If a binding is not found in this Injector, then it is searched in the parent injectors recursively.
         public Injector ParentInjector { get; private set; }
+
+        // The VisualElement that is used to query other UIElements (when using UI Toolkit).
+        public VisualElement RootVisualElement { get; set; }
 
         private readonly Dictionary<object, IProvider> injectionKeyToProviderMap = new Dictionary<object, IProvider>();
 
@@ -113,7 +117,12 @@ namespace UniInject
 
         public void Inject(object target, InjectionData injectionData)
         {
-            if (injectionData.searchMethod == SearchMethods.SearchInBindings)
+            // Check if the injection key is a USS Selector to query a VisualElement
+            if (IsVisualElementQuery(injectionData))
+            {
+                InjectMemberFromUiDocument(target, injectionData.MemberInfo, injectionData.InjectionKeys[0] as string, injectionData.isOptional);
+            }
+            else if (injectionData.searchMethod == SearchMethods.SearchInBindings)
             {
                 InjectMemberFromBindings(target, injectionData.MemberInfo, injectionData.InjectionKeys, injectionData.isOptional);
             }
@@ -125,6 +134,58 @@ namespace UniInject
             {
                 throw new InjectionException($"Cannot perform injection via {injectionData.searchMethod} into an object of type {target.GetType()}."
                     + " Only MonoBehaviour instances are supported.");
+            }
+        }
+
+        private bool IsVisualElementQuery(InjectionData injectionData)
+        {
+            return injectionData.InjectionKeys.Length == 1
+                && injectionData.InjectionKeys[0] is string injectionKeyString
+                && (injectionKeyString.StartsWith("#") || injectionKeyString.StartsWith("."))
+                && ((injectionData.MemberInfo is FieldInfo fieldInfo && typeof(VisualElement).IsAssignableFrom(fieldInfo.FieldType))
+                    || (injectionData.MemberInfo is PropertyInfo propertyInfo && typeof(VisualElement).IsAssignableFrom(propertyInfo.PropertyType)));
+        }
+
+        private void InjectMemberFromUiDocument(object target, MemberInfo memberInfo, string injectionKeyString, bool isOptional)
+        {
+            if (RootVisualElement == null)
+            {
+                throw new InjectionException($"Attempt to inject VisualElement but no UIDocument has been set (target: {target}, injectionKeyString: {injectionKeyString})");
+            }
+
+            string elementName = injectionKeyString.StartsWith("#")
+                ? injectionKeyString.Substring(1)
+                : null;
+            string elementClassName = injectionKeyString.StartsWith(".")
+                ? injectionKeyString.Substring(1)
+                : null;
+            VisualElement visualElement = RootVisualElement.Q<VisualElement>(elementName, elementClassName);
+
+            try
+            {
+                if (visualElement != null)
+                {
+                    if (memberInfo is FieldInfo)
+                    {
+                        (memberInfo as FieldInfo).SetValue(target, visualElement);
+                    }
+                    else if (memberInfo is PropertyInfo)
+                    {
+                        (memberInfo as PropertyInfo).SetValue(target, visualElement);
+                    }
+                    else
+                    {
+                        throw new InjectionException($"Only Fields and Properties are supported for injection of VisualElements but got {memberInfo.MemberType}.");
+                    }
+                }
+                else if (!isOptional)
+                {
+                    throw new InjectionException($"No VisualElement found using elementName: {elementName}, className: {elementClassName}");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new InjectionException($"Cannot inject member {memberInfo.Name} of {target}.", ex);
             }
         }
 

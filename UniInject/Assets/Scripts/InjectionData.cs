@@ -1,4 +1,4 @@
-
+﻿
 using System;
 using System.Reflection;
 
@@ -20,11 +20,6 @@ namespace UniInject
         public SearchMethods searchMethod;
 
         public bool isOptional;
-
-        public InjectionData(Type type, MemberInfo memberInfo, object injectionKey, SearchMethods strategy, bool isOptional)
-            : this(type, memberInfo, new object[] { injectionKey }, strategy, isOptional)
-        {
-        }
 
         public InjectionData(Type type, MemberInfo memberInfo, object[] injectionKeys, SearchMethods strategy, bool isOptional)
         {
