@@ -122,6 +122,39 @@ public class MyCoolScript2 : MonoBehaviour, INeedInjection
 }
 ```
 
+## Get a VisualElement (when using UI Toolkit)
+
+VisualElements can be searched by name (using a string as key with prefix '#') or by class (using a string as key with prefix '.')
+
+```
+...
+using UniInject;
+using UniInject.UIElements;
+
+public class DialogControl : INeedInjection, IInjectionFinishedListener
+{
+    [Inject(key = "#theButtonName")]
+    private Button theButton;
+
+    [Inject(key = ".theLabelClass")]
+    private Label theLabel;
+
+    public void OnInjectionFinished() {
+        // Do something with the injected instances.
+    }
+}
+```
+
+VisualElements are searched from the Injector's RootVisualElement (if set).
+
+- This field is set by the SceneInjectionManager to the VisualElement of the UIDocument that is tagged "UIDocument".
+
+- This field can be set manually. This way it is possible to inject instances from any VisualElement, e.g. a dialog that is created at runtime:
+    ```
+    var uxmlDialogInstance = uxmlDialog.CloneTree();
+    sceneInjector.WithRootVisualElement(uxmlDialogInstance).Inject(dialogControlInstance);
+    ```
+
 ## Binding an instance
 
 ```
