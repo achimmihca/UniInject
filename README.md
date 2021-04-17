@@ -3,7 +3,15 @@
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/ebc1ffb98b524a38a9a5f93aa7254246)](https://www.codacy.com/gh/achimmihca/UniInject/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=achimmihca/UniInject&amp;utm_campaign=Badge_Grade)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/achimmihca/UniInject/blob/main/LICENSE)
 
-# Introduction
+# UniInject
+
+Dependency Injection for Unity3D.
+
+## Why Dependency Injection?
+
+- Better separation of concerns and loose coupling, which leads to composable software and code reuse
+- Better testability
+- Less boilerplate code to get instances
 
 Dependency injection (DI) is a general concept in object oriented programming.
 
@@ -11,39 +19,33 @@ If you are new to the topic, then I recommend you [this introduction](https://ww
 
 You might also be interested in the [introduction from the Zenject library](https://github.com/modesttree/Zenject#theory), which is another DI library for Unity.
 
-If you are interested in a bit of history on DI and the approach taken by other (Java) libs then I recommend you the first minutes of [this talk](https://www.youtube.com/watch?v=oK_XtfXPkqw) from Google Developers on YouTube.
-The talk covers a bit of Spring and XML bean definitions, Google Guice (UniInject and Zenject are similar to Guice), and Dagger 2.
+## Why UniInject?
 
-# Why UniInject
-
-- Less boilerplate code to get instances
-- Better testability
-- The same approach (the Inject-annotation) can be used to get an instance via Unity search methods (e.g. GetComponent, GetComponentInChildren) or from custom bindings
-- Binding values can be done using normal MonoBehaviours that implement the IBinder interface (examples below)
-- Injection is finished after the Awake() method, such that the injected values can be used in the Start() and OnEnable() methods for setup logic
-- Hierarchy of different injection contexts (e.g. for Player1 and Player2)
-- The values of GetComponent, GetComponentInChildren, etc. are mockable.
-    - Thus, for tests the scene hierarchy can be simulated.
-- Manual injection of newly created instances
+- The same Inject-annotation can be used to get an instance
+    - from custom bindings
+    - from components (e.g. GetComponent, GetComponentInChildren)
+    - from VisualElements (when using Unity's new UIToolkit / UXML / UIDocument)
 - Field, property, method and constructor injection
 - Cyclic dependencies are handled (except for constructor injection)
 - Optional injection
     - Marking something as optional will not throw an Exception when no value is present
 - Custom key for injection
     - The default is the type of the field that should be injected
-- Static check in Edit Mode that there is a value for every symbol, which should be injected
-    - Mark fields that are set in the inspector via the InjectedInInspector-annotation.
-    This will check that a value has actually been provided (throw if null).
-    Furthermore it makes origin of values easier to grasp.
+- Hierarchy of different injection contexts (e.g. for Player1 and Player2)
+- Scene injection is finished after the Awake() method, such that the injected values can be used in the Start() and OnEnable() methods for further setup logic
+- The values of GetComponent, GetComponentInChildren, etc. are mockable.
+    - Thus, for tests the scene hierarchy can be simulated.
+- Custom bindings can be created using normal MonoBehaviours that implement the IBinder interface
+- Static validation in Edit Mode that there is a value for every symbol, which should be injected
+- Mark fields that are set in the inspector via the InjectedInInspector-annotation.
+    - It makes the origin of values easier to grasp.
+    - The static validation can check that a non-null value has been set in such an annotated field.
+- Calling injection methods is also possible in edit-mode (e.g. calling SceneInjectionManager.DoInjection())
 - UniInject provides you with tools for DI that you can adapt for your own needs.
     - Build upon the given logic to change when, how, and what is injected.
     - The included SceneInjectionManager is a good starting point for inspiration.
 
-The following is **not supported** (yet):
-
-- Injection during Edit Mode
-
-# Other Dependency Injection Libraries for Unity3D
+## Other Dependency Injection Libraries for Unity3D
 
 Before setting for a DI library, also check out these projects
 - [Zenject](https://github.com/modesttree/Zenject)
@@ -54,11 +56,19 @@ Before setting for a DI library, also check out these projects
 
 Clone this repo, open the Unity project, and take a look at the demo scene.
 
-# How to use
+# How to Use
+
+## Get the Code
+
+- You can add a dependency to your `Packages/manifest.json` in the following form:
+  `"com.achimmihca.uniinject": "https://github.com/achimmihca/UniInject.git?path=UniInject/Packages/com.achimmihca.uniinject#v1.0.0"`
+    - Note that `#v1.0.0` specifies a tag of this git repository. Remove this part to use the latest (possibly unstable) version.
+    - Note further that the path parameter (`?path=...`) points to the folder in this git repository, where the Unity package is placed.
 
 ## SceneInjectionManager
 
-The SceneInjectionManager is taking care of finding IBinder instances in the scene and injecting the bound objects into all scripts that implement the INeedInjection interface. This is done in Awake(), such that injection is complete when the Start() method is entered:
+The SceneInjectionManager is taking care of finding IBinder instances in the scene and injecting the bound objects into all scripts that implement the INeedInjection interface.
+This is done in Awake(), such that injection is complete when the Start() method is entered:
 
 - SceneInjectionManager.Awake()
     - Analyze the scene to find binders, scripts that need injection, and listeners
@@ -68,7 +78,7 @@ The SceneInjectionManager is taking care of finding IBinder instances in the sce
 
 Note that injection of the scene is done after binding. Thus, an IBinder cannot use injected fields to create new bindings.
 ```
-public class MyCoolSceneController : MonoBehaviour, IBinder
+public class MyCoolSceneControl : MonoBehaviour, IBinder
 {
     [Inject]
     private SettingsManager settingsManager;
@@ -86,10 +96,7 @@ public class MyCoolSceneController : MonoBehaviour, IBinder
 
 ### Custom SceneInjectionManager
 
-You can write a SceneInjectionManager for your own needs.
-
-For example, one could create a marker interface for MonoBehaviours to bind these instances automatically.
-This way, you could just add the marker interface to a class and then inject its (singleton) instance where needed.
+You can write a SceneInjectionManager for your own needs to change when, how, and what is injected.
 
 ### ISceneInjectionFinishedListener / OnSceneInjectionFinished
 
@@ -122,7 +129,7 @@ public class MyCoolScript2 : MonoBehaviour, INeedInjection
 }
 ```
 
-## Get a VisualElement (when using UI Toolkit)
+## Get a VisualElement (when using UIToolkit)
 
 VisualElements can be searched by name (using a string as key with prefix '#') or by class (using a string as key with prefix '.')
 
@@ -145,11 +152,10 @@ public class DialogControl : INeedInjection, IInjectionFinishedListener
 }
 ```
 
-VisualElements are searched from the Injector's RootVisualElement (if set).
+VisualElements are searched from the Injector's RootVisualElement.
 
 - This field is set by the SceneInjectionManager to the VisualElement of the UIDocument that is tagged "UIDocument".
-
-- This field can be set manually. This way it is possible to inject instances from any VisualElement, e.g. a dialog that is created at runtime:
+- This field can be set manually. This way it is possible to inject instances from any VisualElement, for example a dialog that is created at runtime:
     ```
     var uxmlDialogInstance = uxmlDialog.CloneTree();
     sceneInjector.WithRootVisualElement(uxmlDialogInstance).Inject(dialogControlInstance);
@@ -161,7 +167,7 @@ VisualElements are searched from the Injector's RootVisualElement (if set).
 ...
 using UniInject;
 
-public class MyCoolSceneController : MonoBehaviour, IBinder
+public class MyCoolSceneControl : MonoBehaviour, IBinder
 {
     [InjectedInInspector]
     public SongAudioPlayer songAudioPlayer;
@@ -175,8 +181,6 @@ public class MyCoolSceneController : MonoBehaviour, IBinder
     }
 }
 ```
-
-See also the [demo binder](https://github.com/achimmihca/UniInject/blob/main/UniInject/Assets/Scenes/DependencyInjectionDemo/DependencyInjectionDemoBinder.cs).
 
 ## Inject scripts that are created at runtime
 
@@ -205,7 +209,7 @@ public class MyCoolScriptThatInstantiatesAnotherScript : MonoBehaviour, INeedInj
 ## Mock Unity Search Methods
 
 ```
-GlobalInjector.MockUnitySearchMethod(scriptInstance, SearchMethods.GetComponentInChildren, new MockupImplementation());
+UniInjectUtils.GlobalInjector.MockUnitySearchMethod(scriptInstance, SearchMethods.GetComponentInChildren, new MockupImplementation());
 ```
 
 ## Verify Scene
@@ -217,7 +221,7 @@ The Menu Item **UniInject > Check current scene** will perform the following che
 
 # Digging deeper
 
-The [tests](https://github.com/achimmihca/UniInject/tree/main/UniInject/Assets/Editor/Tests) for UniInject are a good way to get an idea what can and cannot be done using UniInject.
+The [tests](https://github.com/achimmihca/UniInject/tree/main/UniInject/Packages/com.achimmihca.uniinject/Tests/Editor) for UniInject are a good way to get an idea what can and cannot be done using UniInject.
 
 # Contributing
 
@@ -227,3 +231,6 @@ See the wiki page: https://github.com/achimmihca/UniInject/wiki/Contributing
 
 UniInject has been created originally for [UltraStar Play](https://github.com/UltraStar-Deluxe/Play).
 If you like singing, karaoke, or SingStar then go check it out ;)
+
+If you are interested in a bit of history on DI and the approach taken by other (Java) libs then I recommend you the first minutes of [this talk](https://www.youtube.com/watch?v=oK_XtfXPkqw) from Google Developers on YouTube.
+The talk covers a bit of Spring and XML bean definitions, Google Guice (UniInject and Zenject are similar to Guice), and Dagger 2.
