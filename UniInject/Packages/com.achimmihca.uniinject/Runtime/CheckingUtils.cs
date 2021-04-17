@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UIElements;
 
 namespace UniInject
 {
@@ -24,6 +25,7 @@ namespace UniInject
                 List<IBinding> bindingsInRootObject = FindBindings(rootObject);
                 bindings.AddRange(bindingsInRootObject);
             }
+            AddBindingsForExistingVisualElements(bindings);
 
             // Check that there is a binding for every value that should be injected.
             // Furthermore, check that all fields and properties with an InjectedInInspectorAttribute
@@ -38,6 +40,48 @@ namespace UniInject
             }
 
             return errorCount;
+        }
+
+        private static void AddBindingsForExistingVisualElements(List<IBinding> bindings)
+        {
+            GameObject uiDocGameObject = GameObject.FindGameObjectWithTag("UIDocument");
+            if (uiDocGameObject == null)
+            {
+                return;
+            }
+
+            UIDocument uiDoc = uiDocGameObject.GetComponent<UIDocument>();
+            if (uiDoc == null)
+            {
+                return;
+            }
+
+            AddBindingsForExistingVisualElementsRecursively(bindings, uiDoc.rootVisualElement);
+        }
+
+        private static void AddBindingsForExistingVisualElementsRecursively(List<IBinding> bindings, VisualElement visualElement)
+        {
+            if (!string.IsNullOrEmpty(visualElement.name))
+            {
+                bindings.Add(new Binding("#" + visualElement.name, null));
+            }
+
+            IEnumerable<string> ussClasses = visualElement.GetClasses();
+            if (ussClasses != null)
+            {
+                foreach (string ussClass in ussClasses)
+                {
+                    bindings.Add(new Binding("." + ussClass, null));                    
+                }
+            }
+
+            if (visualElement.childCount > 0)
+            {
+                foreach (VisualElement child in visualElement.Children())
+                {
+                    AddBindingsForExistingVisualElementsRecursively(bindings, child);
+                }
+            }
         }
 
         private static int CheckScript(MonoBehaviour script, List<IBinding> bindings)
