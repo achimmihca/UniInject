@@ -1,0 +1,17 @@
+{
+    "name": "com.achimmihca.Editor.uniinject",
+    "references": [
+		"com.achimmihca.uniinject"
+    ],
+    "includePlatforms": [
+		"Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

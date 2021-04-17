@@ -1,0 +1,28 @@
+{
+    "name": "com.achimmihca.uniinject",
+    "version": "1.0.0",
+    "displayName": "UniInject",
+    "description": "Dependency Injection for Unity3D",
+    "dependencies": {
+    },
+   "keywords": [
+      "DI",
+      "dependency",
+	  "injection",
+      "inject",
+	  "injector",
+      "binder",
+	  "annotation"
+    ],
+    "author": {
+      "name": "Andreas Stange",
+      "email": "anst.dev@gmail.com",
+      "url": "https://github.com/achimmihca/UniInject"
+    },
+	"samples": [
+    {
+     "displayName": "Sample1",
+     "description": "Dependency injection demo scene",
+     "path": "Samples~/SampleFolder1"
+    }]
+}

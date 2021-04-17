@@ -1,0 +1,21 @@
+{
+    "name": "com.achimmihca.uniinject.Editor.Tests",
+    "references": [
+		"com.achimmihca.uniinject",
+		"com.achimmihca.uniinject.Editor"
+    ],
+    "optionalUnityReferences": [
+        "TestAssemblies"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -1,0 +1,15 @@
+{
+	"name": "com.achimmihca.uniinject.sample1",
+	"references": [
+		"com.achimmihca.uniinject"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -1,5 +1,11 @@
 {
   "dependencies": {
+    "com.achimmihca.uniinject": {
+      "version": "file:com.achimmihca.uniinject",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "com.unity.collab-proxy": {
       "version": "1.3.9",
       "depth": 0,

@@ -1,0 +1,16 @@
+{
+    "name": "com.achimmihca.uniinject",
+    "references": [
+		"UnityEngine.UIElementsModule",
+        "UnityEngine.UIElementsGameObjectsModule"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
