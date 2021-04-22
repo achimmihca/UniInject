@@ -8,7 +8,6 @@
 Dependency Injection for Unity3D.
 
 ## Why Dependency Injection?
-
 - Better separation of concerns and loose coupling, which leads to composable software and code reuse
 - Better testability
 - Less boilerplate code to get instances
@@ -20,7 +19,6 @@ If you are new to the topic, then I recommend you [this introduction](https://ww
 You might also be interested in the [introduction from the Zenject library](https://github.com/modesttree/Zenject#theory), which is another DI library for Unity.
 
 ## Why UniInject?
-
 - The same Inject-annotation can be used to get an instance
     - from custom bindings
     - from components (e.g. GetComponent, GetComponentInChildren)
@@ -46,27 +44,20 @@ You might also be interested in the [introduction from the Zenject library](http
     - The included SceneInjectionManager is a good starting point for inspiration.
 
 ## Other Dependency Injection Libraries for Unity3D
-
 Before setting for a DI library, also check out these projects
 - [Zenject](https://github.com/modesttree/Zenject)
 - [adic](https://github.com/intentor/adic/)
 - [RapidIoC](https://github.com/cpgames/RapidIoC)
 
-# Demo
-
-Clone this repo, open the Unity project, and take a look at the demo scene.
-
 # How to Use
 
-## Get the Code
-
-- You can add a dependency to your `Packages/manifest.json` in the following form:
+## Get the Package
+- You can add a dependency to your `Packages/manifest.json`  using a [Git URL](https://docs.unity3d.com/Documentation/Manual/upm-git.html) in the following form:
   `"com.achimmihca.uniinject": "https://github.com/achimmihca/UniInject.git?path=UniInject/Packages/com.achimmihca.uniinject#v1.0.0"`
-    - Note that `#v1.0.0` specifies a tag of this git repository. Remove this part to use the latest (possibly unstable) version.
-    - Note further that the path parameter (`?path=...`) points to the folder in this git repository, where the Unity package is placed.
+    - Note that `#v1.0.0` can be used to specify a tag or commit hash.
+- This package ships with a sample that can be imported to your project using Unity's Package Manager.
 
 ## SceneInjectionManager
-
 The SceneInjectionManager is taking care of finding IBinder instances in the scene and injecting the bound objects into all scripts that implement the INeedInjection interface.
 This is done in Awake(), such that injection is complete when the Start() method is entered:
 
@@ -95,16 +86,13 @@ public class MyCoolSceneControl : MonoBehaviour, IBinder
 ```
 
 ### Custom SceneInjectionManager
-
 You can write a SceneInjectionManager for your own needs to change when, how, and what is injected.
 
 ### ISceneInjectionFinishedListener / OnSceneInjectionFinished
-
 After injection of the scene is complete, the SceneInjectionManager notifies all instances of ISceneInjectionFinishedListener.
 This will be done before any Start() method is called by Unity.
 
 ## Get an instance that has been bound
-
 ```
 ...
 using UniInject;
@@ -130,7 +118,6 @@ public class MyCoolScript2 : MonoBehaviour, INeedInjection
 ```
 
 ## Get a VisualElement (when using UIToolkit)
-
 VisualElements can be searched by name (using a string as key with prefix '#') or by class (using a string as key with prefix '.')
 
 ```
@@ -162,7 +149,6 @@ VisualElements are searched from the Injector's RootVisualElement.
     ```
 
 ## Binding an instance
-
 ```
 ...
 using UniInject;
@@ -183,7 +169,6 @@ public class MyCoolSceneControl : MonoBehaviour, IBinder
 ```
 
 ## Inject scripts that are created at runtime
-
 ```
 ...
 using UniInject;
@@ -207,28 +192,23 @@ public class MyCoolScriptThatInstantiatesAnotherScript : MonoBehaviour, INeedInj
 ```
 
 ## Mock Unity Search Methods
-
 ```
 UniInjectUtils.GlobalInjector.MockUnitySearchMethod(scriptInstance, SearchMethods.GetComponentInChildren, new MockupImplementation());
 ```
 
 ## Verify Scene
-
 The Menu Item **UniInject > Check current scene** will perform the following checks:
 
 - There is a binding for every value that should be injected
 - Fields marked with [InjectedInInspector] actually have a value
 
 # Digging deeper
-
 The [tests](https://github.com/achimmihca/UniInject/tree/main/UniInject/Packages/com.achimmihca.uniinject/Tests/Editor) for UniInject are a good way to get an idea what can and cannot be done using UniInject.
 
 # Contributing
-
 See the wiki page: https://github.com/achimmihca/UniInject/wiki/Contributing
 
 # History
-
 UniInject has been created originally for [UltraStar Play](https://github.com/UltraStar-Deluxe/Play).
 If you like singing, karaoke, or SingStar then go check it out ;)
 
