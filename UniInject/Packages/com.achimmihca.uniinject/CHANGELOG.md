@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0] - 2021-11-08
+- Collect multiple exceptions during injection of an object and re-throw as one single exception
+- Still inject fields where possible if there are exceptions on some other fields
+
 ## [1.0.0] - 2021-04-17
 - Field, property, method and constructor injection
 - Cyclic dependencies are handled (except for constructor injection)
