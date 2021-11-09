@@ -123,10 +123,6 @@ namespace UniInject
             // Throw all missing binding issues in a single exception.
             if (exceptionList != null)
             {
-                if (exceptionList.Count == 1)
-                {
-                    throw exceptionList[0];
-                }
                 throw new InjectionException($"Failed injection of object {target}"
                                              + $" of type {target.GetType()}:", exceptionList);
             }
