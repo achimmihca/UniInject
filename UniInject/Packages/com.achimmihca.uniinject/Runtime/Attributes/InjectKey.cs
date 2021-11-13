@@ -5,11 +5,11 @@ namespace UniInject
     [AttributeUsage(AttributeTargets.Parameter)]
     public class InjectionKeyAttribute : Attribute
     {
-        public object key;
+        public object Key { get; set; }
 
         public InjectionKeyAttribute(string key)
         {
-            this.key = key;
+            this.Key = key;
         }
     }
 }

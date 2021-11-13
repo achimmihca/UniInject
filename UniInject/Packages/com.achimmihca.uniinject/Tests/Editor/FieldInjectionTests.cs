@@ -138,7 +138,7 @@ namespace UniInject.Tests
 
         private class NeedsFieldInjectionWithCustomKey
         {
-            [Inject(key = "author")]
+            [Inject(Key = "author")]
             public string theAuthor;
         }
 
@@ -201,10 +201,10 @@ namespace UniInject.Tests
 
         private class NeedsFieldInjection
         {
-            [Inject(optional = true)]
+            [Inject(Optional = true)]
             public string theString;
 
-            [Inject(optional = true)]
+            [Inject(Optional = true)]
             public ImplWithInstanceIndex implWithInstanceCounter;
         }
 

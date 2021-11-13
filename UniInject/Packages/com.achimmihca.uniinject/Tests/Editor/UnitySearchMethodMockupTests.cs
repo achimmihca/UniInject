@@ -69,16 +69,16 @@ namespace UniInject.Tests
 
         public class ScriptThatNeedsInjectionFromSceneHierarchy : MonoBehaviour
         {
-            [Inject(searchMethod = SearchMethods.GetComponent, optional = true)]
+            [Inject(SearchMethod = SearchMethods.GetComponent, Optional = true)]
             public ITextHolder siblingComponent;
 
-            [Inject(searchMethod = SearchMethods.GetComponentInChildren, optional = true)]
+            [Inject(SearchMethod = SearchMethods.GetComponentInChildren, Optional = true)]
             public ITextHolder childComponent;
 
-            [Inject(searchMethod = SearchMethods.GetComponentInParent, optional = true)]
+            [Inject(SearchMethod = SearchMethods.GetComponentInParent, Optional = true)]
             public ITextHolder parentComponent;
 
-            [Inject(searchMethod = SearchMethods.FindObjectOfType)]
+            [Inject(SearchMethod = SearchMethods.FindObjectOfType)]
             public ITextHolder otherComponent;
         }
 

@@ -265,13 +265,13 @@ namespace UniInject.Tests
             public string theString;
             public ImplWithInstanceIndex implWithInstanceCounter;
 
-            [Inject(optional = true)]
+            [Inject(Optional = true)]
             public void SetImpl(ImplWithInstanceIndex impl)
             {
                 this.implWithInstanceCounter = impl;
             }
 
-            [Inject(optional = true)]
+            [Inject(Optional = true)]
             public void SetString(string s)
             {
                 this.theString = s;

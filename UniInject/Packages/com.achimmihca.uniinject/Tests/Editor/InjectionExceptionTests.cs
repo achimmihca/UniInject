@@ -41,13 +41,13 @@ namespace UniInject.Tests
 
         private class ScriptThanNeedsInjectionWithMissingBindings : INeedInjection
         {
-            [Inject(key = "someMissingKey1")]
+            [Inject(Key = "someMissingKey1")]
             public string someMissingString1;
 
-            [Inject(key = "someMissingKey2")]
+            [Inject(Key = "someMissingKey2")]
             public string someMissingString2;
 
-            [Inject(key = "someKey")]
+            [Inject(Key = "someKey")]
             public string someString;
         }
     }

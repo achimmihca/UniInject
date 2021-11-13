@@ -8,38 +8,38 @@ namespace UniInject
                   | AttributeTargets.Method)]
     public class InjectAttribute : Attribute
     {
-        private object internalKey;
-        public object key
+        private object key;
+        public object Key
         {
             get
             {
-                if (internalKey != null)
+                if (key != null)
                 {
-                    return internalKey;
+                    return key;
                 }
-                else if (!string.IsNullOrEmpty(uxmlName))
+                else if (!string.IsNullOrEmpty(UxmlName))
                 {
-                    return "#" + uxmlName;
+                    return "#" + UxmlName;
                 }
-                else if (!string.IsNullOrEmpty(uxmlClass))
+                else if (!string.IsNullOrEmpty(UxmlClass))
                 {
-                    return "." + uxmlClass;
+                    return "." + UxmlClass;
                 }
 
                 return null;
             }
             set
             {
-                internalKey = value;
+                key = value;
             }
         }
 
-        public string uxmlName;
-        public string uxmlClass;
+        public string UxmlName { get; set; }
+        public string UxmlClass { get; set; }
 
-        public bool optional;
+        public bool Optional { get; set; }
 
-        public SearchMethods searchMethod = SearchMethods.SearchInBindings;
+        public SearchMethods SearchMethod { get; set; } = SearchMethods.SearchInBindings;
 
         public InjectAttribute()
         {

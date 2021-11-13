@@ -45,14 +45,14 @@ namespace UniInject
 
         private static InjectionData CreateInjectionDataForFieldOrProperty(Type type, MemberInfo memberInfo, InjectAttribute injectAttribute)
         {
-            object injectionKey = injectAttribute.key;
+            object injectionKey = injectAttribute.Key;
             if (injectionKey == null)
             {
                 Type typeOfMember = GetTypeOfFieldOrProperty(type, memberInfo);
                 injectionKey = typeOfMember;
             }
             object[] injectionKeys = new object[] { injectionKey };
-            InjectionData injectionData = new InjectionData(type, memberInfo, injectionKeys, injectAttribute.searchMethod, injectAttribute.optional);
+            InjectionData injectionData = new InjectionData(type, memberInfo, injectionKeys, injectAttribute.SearchMethod, injectAttribute.Optional);
             return injectionData;
         }
 
@@ -66,7 +66,7 @@ namespace UniInject
                 int parameterIndex = parameterInfo.Position;
                 injectionKeys[parameterIndex] = injectionKey;
             }
-            InjectionData injectionData = new InjectionData(type, methodInfo, injectionKeys, injectAttribute.searchMethod, injectAttribute.optional);
+            InjectionData injectionData = new InjectionData(type, methodInfo, injectionKeys, injectAttribute.SearchMethod, injectAttribute.Optional);
             return injectionData;
         }
 
@@ -138,7 +138,7 @@ namespace UniInject
             InjectionKeyAttribute injectionKeyAttribute = parameterInfo.GetCustomAttribute<InjectionKeyAttribute>();
             if (injectionKeyAttribute != null)
             {
-                return injectionKeyAttribute.key;
+                return injectionKeyAttribute.Key;
             }
             else
             {

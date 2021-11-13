@@ -16,19 +16,19 @@ public class ScriptThatNeedsInjection : MonoBehaviour, INeedInjection
     public Transform referencedTransform;
 
     // Inject field via GetComponentInChildren
-    [Inject(searchMethod = SearchMethods.GetComponentInChildren)]
+    [Inject(SearchMethod = SearchMethods.GetComponentInChildren)]
     private ChildOfScriptThatNeedsInjection child;
 
     // Inject property via GetComponentInParent
-    [Inject(searchMethod = SearchMethods.GetComponentInParent)]
+    [Inject(SearchMethod = SearchMethods.GetComponentInParent)]
     private ParentOfScriptThatNeedsInjection Parent { get; set; }
 
     // Inject readonly field via GetComponentInParent
-    [Inject(searchMethod = SearchMethods.GetComponentInParent)]
+    [Inject(SearchMethod = SearchMethods.GetComponentInParent)]
     private readonly OtherComponentOfScriptThatNeedsInjection siblingComponent;
 
     // Inject readonly property via FindObjectOfType
-    [Inject(searchMethod = SearchMethods.FindObjectOfType)]
+    [Inject(SearchMethod = SearchMethods.FindObjectOfType)]
     private readonly Canvas canvas;
 
     // Inject property
@@ -40,22 +40,34 @@ public class ScriptThatNeedsInjection : MonoBehaviour, INeedInjection
     [Inject]
     private LazyInjectionDemo lazyInjectionDemo;
 
-    // Inject optional
-    [Inject(optional = true)]
+    // Inject can be optional. This means the value may be null.
+    [Inject(Optional = true)]
     private UnityEngine.UI.Image optionalImage;
 
-    [Inject(searchMethod = SearchMethods.GetComponentInChildren, optional = true)]
+    [Inject(SearchMethod = SearchMethods.GetComponentInChildren, Optional = true)]
     private Text uiText;
 
     // Inject property using a specific key instead of the type.
-    [Inject(key = "author")]
+    [Inject(Key = "author")]
     private string NameOfAuthor { get; set; }
 
     // Inject VisualElement by name (using '#' as prefix) or by class (using '.' as prefix).
-    // By default, the VisualElement will be searched starting from the UIDocument, that is tagged as "UIDocument" (see SceneInjectionManager).
+    // By default, the VisualElement will be searched starting from the UIDocument,
+    // that is tagged as "UIDocument" (see SceneInjectionManager).
     // To use another root VisualElement for the search, set Injector.RootVisualElement.
-    [Inject(key = "#theLabel")]
-    private UnityEngine.UIElements.Label theUxmlLabel { get; set; }
+    [Inject(Key = "#theLabel")]
+    private UnityEngine.UIElements.Label theUxmlLabel;
+
+    [Inject(Key = ".theLabelClass")]
+    private UnityEngine.UIElements.Label theUxmlLabel2;
+
+    // UxmlName will prefix the value with '#' and use it as the key.
+    [Inject(UxmlName = "theLabel")]
+    private UnityEngine.UIElements.Label theUxmlLabel3;
+
+    // UxmlClass will prefix the value with '.' and use it as the key.
+    [Inject(UxmlClass = "theLabelClass")]
+    private UnityEngine.UIElements.Label theUxmlLabel4;
 
     // The instance of this field is created during injection.
     // Depending how the interface is bound (singleton or not),
@@ -110,6 +122,9 @@ public class ScriptThatNeedsInjection : MonoBehaviour, INeedInjection
         Debug.Log("The bound instance of an interface: " + SceneInjector.GetValueForInjectionKey<IDemoInterface>());
 
         Debug.Log("theUxmlLabel.text: " + theUxmlLabel.text);
+        Debug.Log("theUxmlLabel2.text: " + theUxmlLabel2.text);
+        Debug.Log("theUxmlLabel3.text: " + theUxmlLabel3.text);
+        Debug.Log("theUxmlLabel4.text: " + theUxmlLabel4.text);
 
         Debug.Log("Injector:" + injector);
     }
