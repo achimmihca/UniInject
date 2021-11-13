@@ -52,10 +52,22 @@ public class ScriptThatNeedsInjection : MonoBehaviour, INeedInjection
     private string NameOfAuthor { get; set; }
 
     // Inject VisualElement by name (using '#' as prefix) or by class (using '.' as prefix).
-    // By default, the VisualElement will be searched starting from the UIDocument, that is tagged as "UIDocument" (see SceneInjectionManager).
+    // By default, the VisualElement will be searched starting from the UIDocument,
+    // that is tagged as "UIDocument" (see SceneInjectionManager).
     // To use another root VisualElement for the search, set Injector.RootVisualElement.
     [Inject(key = "#theLabel")]
     private UnityEngine.UIElements.Label theUxmlLabel { get; set; }
+
+    [Inject(key = ".theLabelClass")]
+    private UnityEngine.UIElements.Label theUxmlLabel2 { get; set; }
+
+    // uxmlName will prefix the value with '#' as the key
+    [Inject(uxmlName = "theLabel")]
+    private UnityEngine.UIElements.Label theUxmlLabel3 { get; set; }
+
+    // uxmlClass will prefix the value with '.' as the key
+    [Inject(uxmlClass = "theLabelClass")]
+    private UnityEngine.UIElements.Label theUxmlLabel4 { get; set; }
 
     // The instance of this field is created during injection.
     // Depending how the interface is bound (singleton or not),
@@ -110,6 +122,9 @@ public class ScriptThatNeedsInjection : MonoBehaviour, INeedInjection
         Debug.Log("The bound instance of an interface: " + SceneInjector.GetValueForInjectionKey<IDemoInterface>());
 
         Debug.Log("theUxmlLabel.text: " + theUxmlLabel.text);
+        Debug.Log("theUxmlLabel2.text: " + theUxmlLabel2.text);
+        Debug.Log("theUxmlLabel3.text: " + theUxmlLabel3.text);
+        Debug.Log("theUxmlLabel4.text: " + theUxmlLabel4.text);
 
         Debug.Log("Injector:" + injector);
     }
