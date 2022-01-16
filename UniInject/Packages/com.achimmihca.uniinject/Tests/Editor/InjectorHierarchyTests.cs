@@ -1,5 +1,6 @@
 ﻿using NUnit.Framework;
 using UniInject;
+using UniInject.Extensions;
 
 namespace UniInject.Tests
 {

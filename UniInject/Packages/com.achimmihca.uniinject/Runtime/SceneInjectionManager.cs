@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using UniInject.Extensions;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UIElements;
+using Debug = UnityEngine.Debug;
 
 namespace UniInject
 {
@@ -20,6 +22,8 @@ namespace UniInject
         public bool onlyInjectScriptsWithMarkerInterface;
 
         public bool logTime;
+
+        public string uiDocumentTagName;
 
         public static SceneInjectionManager Instance
         {
@@ -54,21 +58,28 @@ namespace UniInject
             sceneInjector = UniInjectUtils.CreateInjector();
             UniInjectUtils.SceneInjector = sceneInjector;
 
-            // Try to find a UIDocument
-            GameObject uiDocumentGameObject = GameObject.FindGameObjectWithTag("UIDocument");
-            if (uiDocumentGameObject != null)
-            {
-                UIDocument uiDocument = uiDocumentGameObject.GetComponent<UIDocument>();
-                if (uiDocument != null)
-                {
-                    sceneInjector.RootVisualElement = uiDocument.rootVisualElement;
-                }
-            }
-
             // Bind the scene injector itself.
             // This way it can be injected at the scene start
             // and be used to inject newly created scripts at runtime.
             sceneInjector.AddBindingForInstance(sceneInjector);
+
+            // Try to find and bind a UIDocument
+            if (!string.IsNullOrEmpty(uiDocumentTagName))
+            {
+                GameObject uiDocumentGameObject = GameObject.FindGameObjectWithTag(uiDocumentTagName);
+                if (uiDocumentGameObject != null)
+                {
+                    UIDocument uiDocument = uiDocumentGameObject.GetComponent<UIDocument>();
+                    if (uiDocument != null)
+                    {
+                        sceneInjector.AddBindingForInstance(uiDocument);
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"No UIDocument found for tag {uiDocumentTagName}");
+                    }
+                }
+            }
 
             // (1) Iterate over scene hierarchy, thereby
             // (a) find IBinder instances.

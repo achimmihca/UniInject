@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -9,12 +10,11 @@ namespace UniInject
 {
     public class Injector
     {
+        public const string RootVisualElementInjectionKey = "rootVisualElement";
+
         // The parent Injector.
         // If a binding is not found in this Injector, then it is searched in the parent injectors recursively.
         public Injector ParentInjector { get; private set; }
-
-        // The VisualElement that is used to query other UIElements (when using UI Toolkit).
-        public VisualElement RootVisualElement { get; set; }
 
         private readonly Dictionary<object, IProvider> injectionKeyToProviderMap = new Dictionary<object, IProvider>();
 
@@ -167,9 +167,11 @@ namespace UniInject
 
         private void InjectMemberFromUiDocument(object target, MemberInfo memberInfo, string injectionKeyString, bool isOptional)
         {
-            if (RootVisualElement == null)
+            if (!TryGetRootVisualElement(out VisualElement rootVisualElement))
             {
-                throw new InjectionException($"Attempt to inject VisualElement but no UIDocument has been set (target: {target}, injectionKeyString: {injectionKeyString})");
+                throw new InjectionException($"Attempt to inject VisualElement for key '{injectionKeyString}'" +
+                                             $" but no binding for string '{RootVisualElementInjectionKey}' " +
+                                             $" or for UIDocument has been set.");
             }
 
             string elementName = injectionKeyString.StartsWith("#")
@@ -178,7 +180,7 @@ namespace UniInject
             string elementClassName = injectionKeyString.StartsWith(".")
                 ? injectionKeyString.Substring(1)
                 : null;
-            VisualElement visualElement = RootVisualElement.Q<VisualElement>(elementName, elementClassName);
+            VisualElement visualElement = rootVisualElement.Q<VisualElement>(elementName, elementClassName);
 
             try
             {
@@ -206,6 +208,61 @@ namespace UniInject
             {
                 throw new InjectionException($"Cannot inject member {memberInfo.Name} of {target}.", ex);
             }
+        }
+
+        private bool TryGetRootVisualElement(out VisualElement rootVisualElement)
+        {
+            try
+            {
+                object obj = GetValueForInjectionKey(RootVisualElementInjectionKey);
+                if (obj is VisualElement visualElement)
+                {
+                    rootVisualElement = visualElement;
+                    return true;
+                }
+                if (obj != null)
+                {
+                    Debug.LogError($"Object for injection key '{RootVisualElementInjectionKey}' was found, but it is not of type VisualElement." +
+                                     $" Instead, it is of type: {obj.GetType()}");
+                }
+            }
+            catch (MissingBindingException e)
+            {
+                // Ignore. Try to find UIDocument and use its rootVisualElement.
+            }
+
+            if (TryGetUIDocument(out UIDocument uiDocument))
+            {
+                rootVisualElement = uiDocument.rootVisualElement;
+                return true;
+            }
+            rootVisualElement = null;
+            return false;
+        }
+
+        private bool TryGetUIDocument(out UIDocument uiDocument)
+        {
+            try
+            {
+                object obj = GetValueForInjectionKey(typeof(UIDocument));
+                if (obj is UIDocument uiDoc)
+                {
+                    uiDocument = uiDoc;
+                    return true;
+                }
+                if (obj != null)
+                {
+                    Debug.LogError($"Object for injection key typeof(UIDocument) was found, but it is not of type UIDocument." +
+                                   $" Instead, it is of type: {obj.GetType()}");
+                }
+            }
+            catch (MissingBindingException e)
+            {
+                // Ignore. Error is thrown further above.
+            }
+
+            uiDocument = null;
+            return false;
         }
 
         private void InjectMemberFromBindings(object target, MemberInfo memberInfo, object[] injectionKeys, bool isOptional)
@@ -375,29 +432,24 @@ namespace UniInject
             return provider;
         }
 
-        public void AddBindingForInstance<T>(T instance)
-        {
-            AddBindingForInstance(typeof(T), instance);
-        }
-
-        public void AddBindingForInstance<T>(object key, T instance)
-        {
-            IBinding binding = new Binding(key, new ExistingInstanceProvider<T>(instance));
-            AddBinding(binding);
-        }
-
-        public void AddBindings(BindingBuilder bindingBuilder)
-        {
-            List<IBinding> newBindings = bindingBuilder.GetBindings();
-            newBindings.ForEach(newBinding => AddBinding(newBinding));
-        }
-
-        public void AddBinding(IBinding binding)
+        public void AddBinding(IBinding binding,
+            RebindingBehavior rebindingBehavior = RebindingBehavior.LogWarning)
         {
             object injectionKey = binding.GetKey();
-            if (injectionKeyToProviderMap.ContainsKey(injectionKey))
+            if (rebindingBehavior != RebindingBehavior.Ignore
+                && injectionKeyToProviderMap.ContainsKey(injectionKey))
             {
-                Debug.LogWarning($"Re-binding of key {injectionKey}");
+                switch (rebindingBehavior)
+                {
+                    case RebindingBehavior.LogWarning:
+                        Debug.LogWarning($"Re-binding of key {injectionKey}");
+                        break;
+                    case RebindingBehavior.LogError:
+                        Debug.LogError($"Re-binding of key {injectionKey}");
+                        break;
+                    case RebindingBehavior.Throw:
+                        throw new RebindingException(injectionKey);
+                }
             }
             injectionKeyToProviderMap[injectionKey] = binding.GetProvider();
         }

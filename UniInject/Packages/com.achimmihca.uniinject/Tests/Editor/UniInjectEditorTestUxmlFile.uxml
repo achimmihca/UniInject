@@ -1,0 +1,9 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <ui:VisualElement name="background" style="width: 100%; height: 100%;">
+        <ui:Button text="Button" display-tooltip-when-elided="true" name="theButton" />
+        <ui:Label text="Label" display-tooltip-when-elided="true" name="theLabel" />
+        <ui:Toggle label="Toggle A" name="toggleA" class="testToggle" />
+        <ui:Toggle label="Toggle B" name="toggleB" class="testToggle" />
+        <ui:Toggle label="Toggle C" name="toggleC" class="testToggle" />
+    </ui:VisualElement>
+</ui:UXML>

@@ -317,6 +317,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   onlyInjectScriptsWithMarkerInterface: 1
   logTime: 1
+  uiDocumentTagName: UIDocument
 --- !u!1 &869000811
 GameObject:
   m_ObjectHideFlags: 0

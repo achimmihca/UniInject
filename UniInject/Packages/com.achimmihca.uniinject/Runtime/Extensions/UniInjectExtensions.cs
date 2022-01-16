@@ -20,7 +20,8 @@ public static class UniInjectExtensions
     public static Injector WithRootVisualElement(this Injector injector, VisualElement visualElement)
     {
         Injector childInjector = UniInjectUtils.CreateInjector(injector);
-        childInjector.RootVisualElement = visualElement;
+        IProvider provider = new ExistingInstanceProvider<VisualElement>(visualElement);
+        childInjector.AddBinding(new Binding("rootVisualElement", provider), RebindingBehavior.Ignore);
         return childInjector;
     }
 }

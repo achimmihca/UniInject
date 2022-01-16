@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using UniInject;
+using UniInject.Extensions;
 
 // Disable warning about never assigned fields. The values are injected.
 #pragma warning disable CS0649
