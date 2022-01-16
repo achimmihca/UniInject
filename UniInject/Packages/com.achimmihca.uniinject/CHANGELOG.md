@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [4.0.0] - 2022-01-16
+- Allow injection of list of VisualElement
+- Better error messages for nested exceptions
+- Moved supplementary AddBinding method to extension methods
+
+## [3.0.0] - 2021-11-13
+- Dedicated properties 'UxmlName' and 'UxmlClass' in Inject-attribute
+- Inject-attribute uses properties in PascalCase 
+
 ## [2.0.0] - 2021-11-08
 - Collect multiple exceptions during injection of an object and re-throw as one single exception
 - Still inject fields where possible if there are exceptions on some other fields
