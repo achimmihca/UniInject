@@ -137,9 +137,13 @@ namespace UniInject
         public void Inject(object target, InjectionData injectionData)
         {
             // Check if the injection key is a USS Selector to query a VisualElement
-            if (IsVisualElementQuery(injectionData))
+            if (IsVisualElementQuery(injectionData, out Type listGenericArgumentType))
             {
-                InjectMemberFromUiDocument(target, injectionData.MemberInfo, injectionData.InjectionKeys[0] as string, injectionData.isOptional);
+                InjectMemberFromUiDocument(target,
+                    injectionData.MemberInfo,
+                    injectionData.InjectionKeys[0] as string,
+                    injectionData.isOptional,
+                    listGenericArgumentType);
             }
             else if (injectionData.searchMethod == SearchMethods.SearchInBindings)
             {
@@ -156,16 +160,57 @@ namespace UniInject
             }
         }
 
-        private bool IsVisualElementQuery(InjectionData injectionData)
+        private bool IsVisualElementQuery(InjectionData injectionData, out Type listGenericArgumentType)
         {
+            listGenericArgumentType = null;
             return injectionData.InjectionKeys.Length == 1
                 && injectionData.InjectionKeys[0] is string injectionKeyString
                 && (injectionKeyString.StartsWith("#") || injectionKeyString.StartsWith("."))
-                && ((injectionData.MemberInfo is FieldInfo fieldInfo && typeof(VisualElement).IsAssignableFrom(fieldInfo.FieldType))
-                    || (injectionData.MemberInfo is PropertyInfo propertyInfo && typeof(VisualElement).IsAssignableFrom(propertyInfo.PropertyType)));
+                && IsTargetTypeVisualElement(injectionData, out listGenericArgumentType);
         }
 
-        private void InjectMemberFromUiDocument(object target, MemberInfo memberInfo, string injectionKeyString, bool isOptional)
+        private static bool IsTargetTypeVisualElement(InjectionData injectionData, out Type listGenericArgumentType)
+        {
+            Type memberType;
+            if (injectionData.MemberInfo is FieldInfo fieldInfo)
+            {
+                memberType = fieldInfo.FieldType;
+            }
+            else if (injectionData.MemberInfo is PropertyInfo propertyInfo)
+            {
+                memberType = propertyInfo.PropertyType;
+            }
+            else
+            {
+                listGenericArgumentType = null;
+                return false;
+            }
+
+            if (typeof(VisualElement).IsAssignableFrom(memberType))
+            {
+                listGenericArgumentType = null;
+                return true;
+            }
+            else if (IsGenericListType(memberType))
+            {
+                listGenericArgumentType = memberType.GetGenericArguments()[0];
+                return typeof(VisualElement).IsAssignableFrom(listGenericArgumentType);
+            }
+
+            listGenericArgumentType = null;
+            return false;
+        }
+
+        private static bool IsGenericListType(Type type)
+        {
+            return (type.IsGenericType && (type.GetGenericTypeDefinition() == typeof(List<>)));
+        }
+
+        private void InjectMemberFromUiDocument(object target,
+            MemberInfo memberInfo,
+            string injectionKeyString,
+            bool isOptional,
+            Type listGenericArgumentType)
         {
             if (!TryGetRootVisualElement(out VisualElement rootVisualElement))
             {
@@ -180,23 +225,37 @@ namespace UniInject
             string elementClassName = injectionKeyString.StartsWith(".")
                 ? injectionKeyString.Substring(1)
                 : null;
-            VisualElement visualElement = rootVisualElement.Q<VisualElement>(elementName, elementClassName);
+
+            object valueToBeInjected;
+            if (listGenericArgumentType != null)
+            {
+                // Cannot call rootVisualElement.Query<> directly, because the type is not clear at compile time.
+                // Thus, must use reflection to get the correct generic method.
+                valueToBeInjected = typeof(InjectorGenericMethodHolder)
+                    .GetMethod("GetVisualElements")
+                    .MakeGenericMethod(listGenericArgumentType)
+                    .Invoke(this, new object[] { rootVisualElement, elementName, elementClassName });
+            }
+            else
+            {
+                valueToBeInjected = rootVisualElement.Q(elementName, elementClassName);
+            }
 
             try
             {
-                if (visualElement != null)
+                if (valueToBeInjected != null)
                 {
                     if (memberInfo is FieldInfo)
                     {
-                        (memberInfo as FieldInfo).SetValue(target, visualElement);
+                        (memberInfo as FieldInfo).SetValue(target, valueToBeInjected);
                     }
                     else if (memberInfo is PropertyInfo)
                     {
-                        (memberInfo as PropertyInfo).SetValue(target, visualElement);
+                        (memberInfo as PropertyInfo).SetValue(target, valueToBeInjected);
                     }
                     else
                     {
-                        throw new InjectionException($"Only Fields and Properties are supported for injection of VisualElements but got {memberInfo.MemberType}.");
+                        throw new InjectionException($"Only Fields and Properties are supported for injection of VisualElements but got member of type {memberInfo.MemberType}.");
                     }
                 }
                 else if (!isOptional)
@@ -226,7 +285,7 @@ namespace UniInject
                                      $" Instead, it is of type: {obj.GetType()}");
                 }
             }
-            catch (MissingBindingException e)
+            catch (MissingBindingException)
             {
                 // Ignore. Try to find UIDocument and use its rootVisualElement.
             }
@@ -256,7 +315,7 @@ namespace UniInject
                                    $" Instead, it is of type: {obj.GetType()}");
                 }
             }
-            catch (MissingBindingException e)
+            catch (MissingBindingException)
             {
                 // Ignore. Error is thrown further above.
             }
@@ -476,6 +535,19 @@ namespace UniInject
                 this.callingScript = callingScript;
                 this.searchMethod = searchMethod;
                 this.searchResult = mockup;
+            }
+        }
+
+        // Workaround for ambiguous generic method invocation when using reflection:
+        // put generic methods that should be called here where there are unambiguous.
+        // Methods must be public to be called via reflection but should not be part of public UniInject interface.
+        private static class InjectorGenericMethodHolder
+        {
+            public static List<T> GetVisualElements<T>(VisualElement rootVisualElement, string elementName, string elementClass)
+                where T : VisualElement
+            {
+                return rootVisualElement.Query<T>(elementName, elementClass)
+                    .ToList();
             }
         }
     }

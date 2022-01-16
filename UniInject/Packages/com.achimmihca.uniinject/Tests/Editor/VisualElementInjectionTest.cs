@@ -34,21 +34,37 @@ namespace UniInject.Tests
 
             NeedsVisualElements needsInjection = new NeedsVisualElements();
             injector.Inject(needsInjection);
-            Assert.NotNull(needsInjection.label);
-            Assert.NotNull(needsInjection.button);
-            Assert.NotNull(needsInjection.dropdownField);
+            Assert.NotNull(needsInjection.label1);
+            Assert.NotNull(needsInjection.Label2);
+
+            Assert.NotNull(needsInjection.dropdownField1);
+            Assert.NotNull(needsInjection.DropdownField2);
+
+            Assert.NotNull(needsInjection.toggles1);
+            Assert.AreEqual(3, needsInjection.toggles1.Count, "Unexpected list elements (toggles1)");
+            Assert.NotNull(needsInjection.Toggles2);
+            Assert.AreEqual(3, needsInjection.Toggles2.Count, "Unexpected list elements (toggles2)");
         }
 
-        public class NeedsVisualElements
+        private class NeedsVisualElements
         {
-            [Inject(UxmlName = "theLabel")]
-            public Label label;
+            [Inject(Key = "#theLabel")]
+            public Label label1;
 
-            [Inject(UxmlName = "theButton")]
-            public Button button;
+            [Inject(UxmlName = "theLabel")]
+            public Label Label2 { get; set; }
 
             [Inject(UxmlClass = "testDropdownClass")]
-            public DropdownField dropdownField;
+            public DropdownField dropdownField1;
+
+            [Inject(Key = ".testDropdownClass")]
+            public DropdownField DropdownField2 { get; set; }
+
+            [Inject(UxmlClass = "testToggle")]
+            public List<Toggle> toggles1;
+
+            [Inject(Key = ".testToggle")]
+            public List<Toggle> Toggles2 { get; set; }
         }
     }
 }

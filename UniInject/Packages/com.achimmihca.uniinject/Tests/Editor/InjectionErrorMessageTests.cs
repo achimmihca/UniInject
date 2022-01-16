@@ -33,7 +33,10 @@ namespace UniInject.Tests
             {
                 bool messageIsOk = e.Message.Contains("GameObject")
                                    && e.Message.Contains("BindingBuilder");
-                Debug.Log(e);
+                if (!messageIsOk)
+                {
+                    Debug.Log(e);
+                }
                 Assert.True(messageIsOk, "Error message does not tell desired and given type of binding." +
                                   " Original error message has been logged to console.");
             }
@@ -67,19 +70,22 @@ namespace UniInject.Tests
             {
                 bool messageIsOk = e.Message.Contains("Button")
                                    && e.Message.Contains("Label");
-                Debug.Log(e);
+                if (!messageIsOk)
+                {
+                    Debug.Log(e);
+                }
                 Assert.True(messageIsOk, "Error message does not tell desired and given type of binding." +
-                                  " Original error message has been logged to console.");
+                                         " Original error message has been logged to console.");
             }
         }
 
-        public class NeedsInjectionWithWrongType
+        private class NeedsInjectionWithWrongType
         {
             [Inject]
             public GameObject gameObject;
         }
 
-        public class NeedsVisualElementWithWrongType
+        private class NeedsVisualElementWithWrongType
         {
             [Inject(UxmlName = "theLabel")]
             public Button button;
