@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace UniInject
 {
@@ -13,10 +14,25 @@ namespace UniInject
         public InjectionException(string message, List<InjectionException> causeExceptionList)
             : base(message
                    + MessageSeparator
-                   + string.Join(MessageSeparator,
-                       causeExceptionList.Select(ex => ex.Message)))
+                   + CreateMergedExceptionMessage(causeExceptionList))
         {
             CauseExceptionList = causeExceptionList;
+        }
+
+        private static string CreateMergedExceptionMessage(List<InjectionException> causeExceptionList)
+        {
+            string CreateDeepExceptionMessage(Exception ex)
+            {
+                string causeMessage = ex.InnerException != null
+                    ? MessageSeparator + "    Caused by: " + CreateDeepExceptionMessage(ex.InnerException)
+                    : "";
+                return ex.Message + causeMessage;
+            }
+
+            List<string> causeExceptionMessages = causeExceptionList
+                .Select(ex => CreateDeepExceptionMessage(ex))
+                .ToList();
+            return string.Join(MessageSeparator, causeExceptionMessages);
         }
 
         public InjectionException(string message) : base(message)

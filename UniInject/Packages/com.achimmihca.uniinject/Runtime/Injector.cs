@@ -206,7 +206,7 @@ namespace UniInject
             }
             catch (Exception ex)
             {
-                throw new InjectionException($"Cannot inject member {memberInfo.Name} of {target}.", ex);
+                throw new InjectionException($"Cannot inject member '{memberInfo.Name}' of {target}.", ex);
             }
         }
 
@@ -311,7 +311,7 @@ namespace UniInject
             }
             catch (Exception e)
             {
-                throw new InjectionException($"Cannot inject {target}.{memberInfo.Name}: " + e.Message, e);
+                throw new InjectionException($"Cannot inject member '{memberInfo.Name}' of {target}: " + e.Message, e);
             }
         }
 
@@ -339,13 +339,13 @@ namespace UniInject
                 }
                 else
                 {
-                    throw new InjectionException($"Cannot inject member {script.name}.{memberInfo}."
+                    throw new InjectionException($"Cannot inject member '{memberInfo}' of {script.name}."
                         + $" Only Fields and Properties are supported for component injection via Unity methods.");
                 }
             }
             else if (!isOptional)
             {
-                throw new InjectionException($"Cannot inject member {script.name}.{memberInfo.Name}."
+                throw new InjectionException($"Cannot inject member '{memberInfo.Name}' of {script.name}."
                     + $" No component of type {componentType} found using method {searchMethod}");
             }
         }

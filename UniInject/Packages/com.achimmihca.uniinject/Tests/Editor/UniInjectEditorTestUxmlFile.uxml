@@ -5,5 +5,6 @@
         <ui:Toggle label="Toggle A" name="toggleA" class="testToggle" />
         <ui:Toggle label="Toggle B" name="toggleB" class="testToggle" />
         <ui:Toggle label="Toggle C" name="toggleC" class="testToggle" />
+        <ui:DropdownField label="Dropdown" index="-1" choices="System.Collections.Generic.List`1[System.String]" name="dropdownField" class="testDropdownClass" />
     </ui:VisualElement>
 </ui:UXML>

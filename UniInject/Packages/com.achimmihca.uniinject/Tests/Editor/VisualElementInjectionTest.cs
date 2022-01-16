@@ -15,7 +15,7 @@ namespace UniInject.Tests
     public class VisualElementInjectionTest
     {
         [Test]
-        public void InjectVisualElementByName()
+        public void InjectVisualElementByNameAndClass()
         {
             string uxmlFilePath =
                 "Packages/com.achimmihca.uniinject/Tests/Editor/UniInjectEditorTestUxmlFile.uxml";
@@ -34,20 +34,21 @@ namespace UniInject.Tests
 
             NeedsVisualElements needsInjection = new NeedsVisualElements();
             injector.Inject(needsInjection);
-            Assert.AreEqual("Label", needsInjection.label.text);
-            Assert.AreEqual("Button", needsInjection.button.text);
+            Assert.NotNull(needsInjection.label);
+            Assert.NotNull(needsInjection.button);
+            Assert.NotNull(needsInjection.dropdownField);
         }
-    }
 
-    public class NeedsVisualElements
-    {
-        [Inject(UxmlName = "theLabel")]
-        public Label label;
+        public class NeedsVisualElements
+        {
+            [Inject(UxmlName = "theLabel")]
+            public Label label;
 
-        [Inject(UxmlName = "theButton")]
-        public Button button;
+            [Inject(UxmlName = "theButton")]
+            public Button button;
 
-        // [Inject(UxmlClass = "testToggle")]
-        // private List<Toggle> toggles;
+            [Inject(UxmlClass = "testDropdownClass")]
+            public DropdownField dropdownField;
+        }
     }
 }
