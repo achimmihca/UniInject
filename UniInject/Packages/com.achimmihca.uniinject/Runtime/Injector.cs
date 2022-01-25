@@ -45,7 +45,7 @@ namespace UniInject
             return newInstance;
         }
 
-        public T Create<T>()
+        private T Create<T>()
         {
             T newInstance = (T)Create(typeof(T));
             return newInstance;

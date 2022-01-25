@@ -18,7 +18,7 @@ namespace UniInject.Tests
             Injector injector = UniInjectUtils.CreateInjector();
             injector.AddBindings(bb);
 
-            NeedsConstructorInjection needsInjection = injector.Create<NeedsConstructorInjection>();
+            NeedsConstructorInjection needsInjection = injector.CreateAndInject<NeedsConstructorInjection>();
             Assert.AreEqual("abc", needsInjection.theString);
         }
 
@@ -32,7 +32,7 @@ namespace UniInject.Tests
             Injector injector = UniInjectUtils.CreateInjector();
             injector.AddBindings(bb);
 
-            NeedsConstructorInjectionWithMultipleParameters needsInjection = injector.Create<NeedsConstructorInjectionWithMultipleParameters>();
+            NeedsConstructorInjectionWithMultipleParameters needsInjection = injector.CreateAndInject<NeedsConstructorInjectionWithMultipleParameters>();
             Assert.AreEqual("abc", needsInjection.theString);
             Assert.AreEqual(123, needsInjection.theInt);
         }
@@ -46,7 +46,7 @@ namespace UniInject.Tests
             Injector injector = UniInjectUtils.CreateInjector();
             injector.AddBindings(bb);
 
-            NeedsConstructorInjectionWithCustomKey needsInjection = injector.Create<NeedsConstructorInjectionWithCustomKey>();
+            NeedsConstructorInjectionWithCustomKey needsInjection = injector.CreateAndInject<NeedsConstructorInjectionWithCustomKey>();
             Assert.AreEqual("Tolkien", needsInjection.theAuthor);
         }
 
@@ -61,7 +61,7 @@ namespace UniInject.Tests
             Injector injector = UniInjectUtils.CreateInjector();
             injector.AddBindings(bb);
 
-            NeedsConstructorInjectionWithAcyclicDependencies_A aInstance = injector.Create<NeedsConstructorInjectionWithAcyclicDependencies_A>();
+            NeedsConstructorInjectionWithAcyclicDependencies_A aInstance = injector.CreateAndInject<NeedsConstructorInjectionWithAcyclicDependencies_A>();
             // The dependency in A (requires B) and B (requires C) must have been resolved with new instances.
             Assert.NotNull(aInstance.bInstance);
             Assert.NotNull(aInstance.bInstance.cInstance);
@@ -78,7 +78,10 @@ namespace UniInject.Tests
             Injector injector = UniInjectUtils.CreateInjector();
             injector.AddBindings(bb);
 
-            Assert.Throws<CyclicConstructorDependenciesException>(delegate { injector.Create<NeedsConstructorInjectionWithCyclicDependencies_A>(); });
+            Assert.Throws<CyclicConstructorDependenciesException>(delegate
+            {
+                injector.CreateAndInject<NeedsConstructorInjectionWithCyclicDependencies_A>();
+            });
         }
 
         /////////////////////////////////////////////////////////////////
