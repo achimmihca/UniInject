@@ -23,6 +23,8 @@ namespace UniInject
 
         private readonly List<UnitySearchMethodMockup> unitySearchMethodMockups = new List<UnitySearchMethodMockup>();
 
+        private IProvider thisInstanceProvider;
+
         internal Injector(Injector parent)
         {
             this.ParentInjector = parent;
@@ -478,7 +480,21 @@ namespace UniInject
 
         private IProvider GetProvider(object injectionKey)
         {
+            // Search for Binding.
             injectionKeyToProviderMap.TryGetValue(injectionKey, out IProvider provider);
+
+            if (provider == null
+                && injectionKey is System.Type type
+                && typeof(Injector).IsAssignableFrom(type))
+            {
+                // Special case: When looking for an Injector, then directly return this instance.
+                if (thisInstanceProvider == null)
+                {
+                    thisInstanceProvider = new ExistingInstanceProvider<Injector>(this);
+                }
+                return thisInstanceProvider;
+            }
+
             if (provider == null && ParentInjector != null)
             {
                 provider = ParentInjector.GetProvider(injectionKey);
