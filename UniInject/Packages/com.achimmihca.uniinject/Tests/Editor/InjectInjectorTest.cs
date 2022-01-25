@@ -13,7 +13,7 @@ namespace UniInject.Tests
         public void InjectorInjectsItself()
         {
             Injector parentInjector = UniInjectUtils.CreateInjector();
-            Injector childInjector = UniInjectUtils.CreateInjector(parentInjector);
+            Injector childInjector = parentInjector.CreateChildInjector();
 
             NeedsInjector needsInjectionFromParentInjector = new NeedsInjector();
             parentInjector.Inject(needsInjectionFromParentInjector);

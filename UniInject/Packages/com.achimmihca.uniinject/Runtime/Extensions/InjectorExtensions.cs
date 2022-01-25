@@ -27,5 +27,10 @@ namespace UniInject.Extensions
             List<IBinding> newBindings = bindingBuilder.GetBindings();
             newBindings.ForEach(newBinding => injector.AddBinding(newBinding, rebindingBehavior));
         }
+
+        public static Injector CreateChildInjector(this Injector injector)
+        {
+            return UniInjectUtils.CreateInjector(injector);
+        }
     }
 }
