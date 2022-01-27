@@ -17,6 +17,10 @@ namespace UniInject.Tests
             object valueForString = childInjector.GetValueForInjectionKey(typeof(string));
 
             Assert.AreEqual("abc", valueForString);
+
+            // Disable search in parent injector
+            childInjector.SearchInParentInjector = false;
+            Assert.Throws<MissingBindingException>(delegate { childInjector.GetValueForInjectionKey(typeof(string)); });
         }
 
         [Test]

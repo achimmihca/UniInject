@@ -25,6 +25,8 @@ namespace UniInject
 
         private IProvider thisInstanceProvider;
 
+        public bool SearchInParentInjector { get; set; } = true;
+
         internal Injector(Injector parent)
         {
             this.ParentInjector = parent;
@@ -211,13 +213,6 @@ namespace UniInject
             bool isOptional,
             Type listGenericArgumentType)
         {
-            if (!TryGetRootVisualElement(out VisualElement rootVisualElement))
-            {
-                throw new InjectionException($"Attempt to inject VisualElement for key '{injectionKeyString}'" +
-                                             $" but no binding for string '{RootVisualElementInjectionKey}' " +
-                                             $" or for UIDocument has been set.");
-            }
-
             string elementName = injectionKeyString.StartsWith("#")
                 ? injectionKeyString.Substring(1)
                 : null;
@@ -225,20 +220,11 @@ namespace UniInject
                 ? injectionKeyString.Substring(1)
                 : null;
 
-            object valueToBeInjected;
-            if (listGenericArgumentType != null)
-            {
-                // Cannot call rootVisualElement.Query<> directly, because the type is not clear at compile time.
-                // Thus, must use reflection to get the correct generic method.
-                valueToBeInjected = typeof(InjectorGenericMethodHolder)
-                    .GetMethod("GetVisualElements")
-                    .MakeGenericMethod(listGenericArgumentType)
-                    .Invoke(this, new object[] { rootVisualElement, elementName, elementClassName });
-            }
-            else
-            {
-                valueToBeInjected = rootVisualElement.Q(elementName, elementClassName);
-            }
+            TryGetValueToBeInjectedFromUiDocument(
+                elementName,
+                elementClassName,
+                listGenericArgumentType,
+                out object valueToBeInjected);
 
             if (valueToBeInjected != null)
             {
@@ -257,7 +243,7 @@ namespace UniInject
             }
             else if (!isOptional)
             {
-                throw new InjectionException($"No VisualElement found using elementName: {elementName}, className: {elementClassName}");
+                throw new InjectionException($"No VisualElement found using elementName: '{elementName}' and className: '{elementClassName}'");
             }
         }
 
@@ -289,6 +275,64 @@ namespace UniInject
             }
             rootVisualElement = null;
             return false;
+        }
+
+        private bool TryGetValueToBeInjectedFromUiDocument(
+            string elementName,
+            string elementClassName,
+            Type listGenericArgumentType,
+            out object valueToBeInjected)
+        {
+            if (!TryGetRootVisualElement(out VisualElement rootVisualElement))
+            {
+                if (MaySearchInParentInjector())
+                {
+                    return ParentInjector.TryGetValueToBeInjectedFromUiDocument(elementName,
+                        elementClassName,
+                        listGenericArgumentType,
+                        out valueToBeInjected);
+                }
+                valueToBeInjected = null;
+                return false;
+            }
+
+            if (listGenericArgumentType != null)
+            {
+                // Cannot call rootVisualElement.Query<> directly, because the type is not clear at compile time.
+                // Thus, must use reflection to get the correct generic method.
+                valueToBeInjected = typeof(InjectorGenericMethodHolder)
+                    .GetMethod("GetVisualElements")
+                    .MakeGenericMethod(listGenericArgumentType)
+                    .Invoke(this, new object[] { rootVisualElement, elementName, elementClassName });
+            }
+            else
+            {
+                valueToBeInjected = rootVisualElement.Q(elementName, elementClassName);
+            }
+
+            if (valueToBeInjected == null)
+            {
+                if (MaySearchInParentInjector())
+                {
+                    // NOTE: Searching in ParentInjector here is inefficient, when the VisualElement hierarchy of this Injector
+                    //       is searched again as part of the ParentInjector's VisualElement hierarchy.
+                    return ParentInjector.TryGetValueToBeInjectedFromUiDocument(elementName,
+                        elementClassName,
+                        listGenericArgumentType,
+                        out valueToBeInjected);
+                }
+
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        private bool MaySearchInParentInjector()
+        {
+            return ParentInjector != null && SearchInParentInjector;
         }
 
         private bool TryGetUIDocument(out UIDocument uiDocument)
@@ -478,7 +522,7 @@ namespace UniInject
                 return thisInstanceProvider;
             }
 
-            if (provider == null && ParentInjector != null)
+            if (provider == null && MaySearchInParentInjector())
             {
                 provider = ParentInjector.GetProvider(injectionKey);
             }

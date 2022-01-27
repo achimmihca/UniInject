@@ -14,12 +14,12 @@ namespace UniInject.Tests
 {
     public class VisualElementInjectionTest
     {
+        private const string UxmlFilePath = "Packages/com.achimmihca.uniinject/Tests/Editor/UniInjectEditorTestUxmlFile.uxml";
+
         [Test]
         public void InjectVisualElementByNameAndClass()
         {
-            string uxmlFilePath =
-                "Packages/com.achimmihca.uniinject/Tests/Editor/UniInjectEditorTestUxmlFile.uxml";
-            VisualTreeAsset visualTreeAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(uxmlFilePath);
+            VisualTreeAsset visualTreeAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UxmlFilePath);
             if (visualTreeAsset == null)
             {
                 throw new UnityException("No visualTreeAsset set");
@@ -44,6 +44,42 @@ namespace UniInject.Tests
             Assert.AreEqual(3, needsInjection.toggles1.Count, "Unexpected list elements (toggles1)");
             Assert.NotNull(needsInjection.Toggles2);
             Assert.AreEqual(3, needsInjection.Toggles2.Count, "Unexpected list elements (toggles2)");
+        }
+
+        [Test]
+        public void InjectVisualElementFromParentInjectorTest()
+        {
+            VisualTreeAsset visualTreeAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(UxmlFilePath);
+            if (visualTreeAsset == null)
+            {
+                throw new UnityException("No visualTreeAsset set");
+            }
+            VisualElement rootVisualElement = visualTreeAsset.CloneTree()
+                .Children()
+                .FirstOrDefault();
+
+            Button button = rootVisualElement.Q<Button>("theButton");
+
+            Injector injector = UniInjectUtils.CreateInjector();
+            injector.AddBindingForInstance(Injector.RootVisualElementInjectionKey, rootVisualElement);
+
+            Injector childInjector = injector.CreateChildInjector()
+                .WithRootVisualElement(button);
+
+            NeedsLabel needsLabel1 = new NeedsLabel();
+            childInjector.Inject(needsLabel1);
+            Assert.NotNull(needsLabel1.label);
+
+            // Disable search in parent injector
+            NeedsLabel needsLabel2 = new NeedsLabel();
+            childInjector.SearchInParentInjector = false;
+            Assert.Throws<InjectionException>(delegate { childInjector.Inject(needsLabel2); });
+        }
+
+        private class NeedsLabel
+        {
+            [Inject(UxmlName = "theLabel")]
+            public Label label;
         }
 
         private class NeedsVisualElements
