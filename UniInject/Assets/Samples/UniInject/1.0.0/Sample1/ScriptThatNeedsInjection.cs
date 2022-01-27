@@ -1,4 +1,5 @@
-﻿using UniInject;
+﻿using System.Linq;
+using UniInject;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
@@ -18,6 +19,9 @@ public class ScriptThatNeedsInjection : MonoBehaviour, INeedInjection
     // Inject field via GetComponentInChildren
     [Inject(SearchMethod = SearchMethods.GetComponentInChildren)]
     private ChildOfScriptThatNeedsInjection child;
+
+    [Inject(SearchMethod = SearchMethods.GetComponentsInChildren)]
+    private Transform[] children;
 
     // Inject property via GetComponentInParent
     [Inject(SearchMethod = SearchMethods.GetComponentInParent)]
@@ -99,6 +103,8 @@ public class ScriptThatNeedsInjection : MonoBehaviour, INeedInjection
     {
         Debug.Log("Parent: " + Parent);
         Debug.Log("Child: " + child);
+        string childrenCsv = string.Join(", ", children.Select(it => it.ToString()));
+        Debug.Log("Children: " + children + " with elements: " + childrenCsv);
         Debug.Log("Sibling Component: " + siblingComponent);
 
         Debug.Log("Canvas: " + canvas);

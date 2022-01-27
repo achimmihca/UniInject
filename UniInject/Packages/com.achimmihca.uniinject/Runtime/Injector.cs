@@ -103,20 +103,22 @@ namespace UniInject
             List<InjectionData> injectionDatas = UniInjectUtils.GetInjectionDatas(target.GetType());
 
             // Inject existing bindings into the fields.
-            List<InjectionException> exceptionList = null;
+            List<Exception> exceptionList = null;
             foreach (InjectionData injectionData in injectionDatas)
             {
                 try
                 {
                     Inject(target, injectionData);
                 }
-                catch (InjectionException ex)
+                catch (Exception ex)
                 {
                     if (exceptionList == null)
                     {
-                        exceptionList = new List<InjectionException>();
+                        exceptionList = new List<Exception>();
                     }
-                    exceptionList.Add(ex);
+
+                    InjectionException injectionException = new InjectionException($"Cannot inject member '{injectionData.MemberInfo.Name}'", ex);
+                    exceptionList.Add(injectionException);
                 }
             }
 
@@ -193,7 +195,7 @@ namespace UniInject
                 listGenericArgumentType = null;
                 return true;
             }
-            else if (IsGenericListType(memberType))
+            else if (ReflectionUtils.IsGenericListType(memberType))
             {
                 listGenericArgumentType = memberType.GetGenericArguments()[0];
                 return typeof(VisualElement).IsAssignableFrom(listGenericArgumentType);
@@ -201,11 +203,6 @@ namespace UniInject
 
             listGenericArgumentType = null;
             return false;
-        }
-
-        private static bool IsGenericListType(Type type)
-        {
-            return (type.IsGenericType && (type.GetGenericTypeDefinition() == typeof(List<>)));
         }
 
         private void InjectMemberFromUiDocument(object target,
@@ -243,31 +240,24 @@ namespace UniInject
                 valueToBeInjected = rootVisualElement.Q(elementName, elementClassName);
             }
 
-            try
+            if (valueToBeInjected != null)
             {
-                if (valueToBeInjected != null)
+                if (memberInfo is FieldInfo)
                 {
-                    if (memberInfo is FieldInfo)
-                    {
-                        (memberInfo as FieldInfo).SetValue(target, valueToBeInjected);
-                    }
-                    else if (memberInfo is PropertyInfo)
-                    {
-                        (memberInfo as PropertyInfo).SetValue(target, valueToBeInjected);
-                    }
-                    else
-                    {
-                        throw new InjectionException($"Only Fields and Properties are supported for injection of VisualElements but got member of type {memberInfo.MemberType}.");
-                    }
+                    (memberInfo as FieldInfo).SetValue(target, valueToBeInjected);
                 }
-                else if (!isOptional)
+                else if (memberInfo is PropertyInfo)
                 {
-                    throw new InjectionException($"No VisualElement found using elementName: {elementName}, className: {elementClassName}");
+                    (memberInfo as PropertyInfo).SetValue(target, valueToBeInjected);
+                }
+                else
+                {
+                    throw new InjectionException($"Only Fields and Properties are supported for injection of VisualElements but got member of type {memberInfo.MemberType}.");
                 }
             }
-            catch (Exception ex)
+            else if (!isOptional)
             {
-                throw new InjectionException($"Cannot inject member '{memberInfo.Name}' of {target}.", ex);
+                throw new InjectionException($"No VisualElement found using elementName: {elementName}, className: {elementClassName}");
             }
         }
 
@@ -329,50 +319,43 @@ namespace UniInject
         private void InjectMemberFromBindings(object target, MemberInfo memberInfo, object[] injectionKeys, bool isOptional)
         {
             object[] valuesToBeInjected;
-            try
+            if (isOptional)
             {
-                if (isOptional)
-                {
-                    try
-                    {
-                        valuesToBeInjected = GetValuesForInjectionKeys(injectionKeys, target, target.GetType());
-                    }
-                    catch (MissingBindingException)
-                    {
-                        // Ignore because the injection is optional.
-                        return;
-                    }
-                }
-                else
+                try
                 {
                     valuesToBeInjected = GetValuesForInjectionKeys(injectionKeys, target, target.GetType());
                 }
-
-                if (valuesToBeInjected == null)
+                catch (MissingBindingException)
                 {
-                    throw new InjectionException("No values to be injected.");
-                }
-
-                if (memberInfo is FieldInfo)
-                {
-                    (memberInfo as FieldInfo).SetValue(target, valuesToBeInjected[0]);
-                }
-                else if (memberInfo is PropertyInfo)
-                {
-                    (memberInfo as PropertyInfo).SetValue(target, valuesToBeInjected[0]);
-                }
-                else if (memberInfo is MethodInfo)
-                {
-                    (memberInfo as MethodInfo).Invoke(target, valuesToBeInjected);
-                }
-                else
-                {
-                    throw new InjectionException($"Only Fields, Properties and Methods are supported for injection.");
+                    // Ignore because the injection is optional.
+                    return;
                 }
             }
-            catch (Exception e)
+            else
             {
-                throw new InjectionException($"Cannot inject member '{memberInfo.Name}' of {target}: " + e.Message, e);
+                valuesToBeInjected = GetValuesForInjectionKeys(injectionKeys, target, target.GetType());
+            }
+
+            if (valuesToBeInjected == null)
+            {
+                throw new InjectionException("No values to be injected.");
+            }
+
+            if (memberInfo is FieldInfo)
+            {
+                (memberInfo as FieldInfo).SetValue(target, valuesToBeInjected[0]);
+            }
+            else if (memberInfo is PropertyInfo)
+            {
+                (memberInfo as PropertyInfo).SetValue(target, valuesToBeInjected[0]);
+            }
+            else if (memberInfo is MethodInfo)
+            {
+                (memberInfo as MethodInfo).Invoke(target, valuesToBeInjected);
+            }
+            else
+            {
+                throw new InjectionException($"Only Fields, Properties and Methods are supported for injection.");
             }
         }
 

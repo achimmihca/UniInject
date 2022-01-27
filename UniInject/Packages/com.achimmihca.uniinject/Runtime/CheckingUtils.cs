@@ -147,7 +147,7 @@ namespace UniInject
             }
             Type componentType = injectionKey as Type;
 
-            UnityEngine.Object searchResult = UniInjectUtils.InvokeUnitySearchMethod(script, injectionData.searchMethod, componentType);
+            object searchResult = UniInjectUtils.InvokeUnitySearchMethod(script, injectionData.searchMethod, componentType);
             if (searchResult == null)
             {
                 LogErrorCannotBeInjected($"No instance of {componentType} found using {injectionData.searchMethod}.",

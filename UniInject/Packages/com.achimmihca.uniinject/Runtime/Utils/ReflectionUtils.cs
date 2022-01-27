@@ -158,5 +158,11 @@ namespace UniInject
             }
             throw new ArgumentException($"Member is neither a field nor a property: {obj.GetType()}.{memberInfo.Name}");
         }
+
+        public static bool IsGenericListType(Type type)
+        {
+            return type.IsGenericType
+                   && type.GetGenericTypeDefinition() == typeof(List<>);
+        }
     }
 }

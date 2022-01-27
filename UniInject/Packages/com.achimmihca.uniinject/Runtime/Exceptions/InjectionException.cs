@@ -9,9 +9,9 @@ namespace UniInject
     {
         private const string MessageSeparator = "\n    ";
 
-        public List<InjectionException> CauseExceptionList { get; private set; }
+        public List<Exception> CauseExceptionList { get; private set; }
 
-        public InjectionException(string message, List<InjectionException> causeExceptionList)
+        public InjectionException(string message, List<Exception> causeExceptionList)
             : base(message
                    + MessageSeparator
                    + CreateMergedExceptionMessage(causeExceptionList))
@@ -19,7 +19,7 @@ namespace UniInject
             CauseExceptionList = causeExceptionList;
         }
 
-        private static string CreateMergedExceptionMessage(List<InjectionException> causeExceptionList)
+        private static string CreateMergedExceptionMessage(List<Exception> causeExceptionList)
         {
             string CreateDeepExceptionMessage(Exception ex)
             {

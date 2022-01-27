@@ -7,11 +7,23 @@
     {
         // Search in an injector's bindings.
         SearchInBindings,
+
         // Unity method to search in the scene hierarchy.
         GetComponent,
+
         GetComponentInChildren,
         GetComponentInChildrenIncludeInactive,
+        GetComponentsInChildren,
+        GetComponentsInChildrenIncludeInactive,
+
         GetComponentInParent,
-        FindObjectOfType
+        GetComponentInParentIncludeInactive,
+        GetComponentsInParent,
+        GetComponentsInParentIncludeInactive,
+
+        FindObjectOfType,
+        FindObjectOfTypeIncludeInactive,
+        FindObjectsOfType,
+        FindObjectsOfTypeIncludeInactive,
     }
 }

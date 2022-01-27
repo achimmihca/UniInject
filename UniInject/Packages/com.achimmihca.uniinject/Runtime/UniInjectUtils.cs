@@ -77,22 +77,97 @@ namespace UniInject
             }
         }
 
-        public static UnityEngine.Object InvokeUnitySearchMethod(MonoBehaviour script, SearchMethods searchMethod, Type componentType)
+        public static object InvokeUnitySearchMethod(MonoBehaviour script, SearchMethods searchMethod, Type componentType)
         {
             switch (searchMethod)
             {
                 case SearchMethods.GetComponent:
                     return script.GetComponent(componentType);
+
                 case SearchMethods.GetComponentInChildren:
                     return script.GetComponentInChildren(componentType);
                 case SearchMethods.GetComponentInChildrenIncludeInactive:
                     return script.GetComponentInChildren(componentType, true);
+                case SearchMethods.GetComponentsInChildren:
+                    ThrowIfNonArrayType(componentType, searchMethod);
+                    return typeof(UniInjectGenericMethodHolder)
+                        .GetMethod("GetComponentsInChildren")
+                        .MakeGenericMethod(componentType.GetElementType())
+                        .Invoke(script, new object[] { script, false });
+                case SearchMethods.GetComponentsInChildrenIncludeInactive:
+                    ThrowIfNonArrayType(componentType, searchMethod);
+                    return typeof(UniInjectGenericMethodHolder)
+                        .GetMethod("GetComponentsInChildren")
+                        .MakeGenericMethod(componentType.GetElementType())
+                        .Invoke(script, new object[] { script, true });
+
                 case SearchMethods.GetComponentInParent:
                     return script.GetComponentInParent(componentType);
+                case SearchMethods.GetComponentInParentIncludeInactive:
+                    return script.GetComponentInParent(componentType, true);
+                case SearchMethods.GetComponentsInParent:
+                    ThrowIfNonArrayType(componentType, searchMethod);
+                    return typeof(UniInjectGenericMethodHolder)
+                        .GetMethod("GetComponentsInParent")
+                        .MakeGenericMethod(componentType.GetElementType())
+                        .Invoke(script, new object[] { script, false });
+                case SearchMethods.GetComponentsInParentIncludeInactive:
+                    ThrowIfNonArrayType(componentType, searchMethod);
+                    return typeof(UniInjectGenericMethodHolder)
+                        .GetMethod("GetComponentsInParent")
+                        .MakeGenericMethod(componentType.GetElementType())
+                        .Invoke(script, new object[] { script, true });
+
                 case SearchMethods.FindObjectOfType:
                     return GameObject.FindObjectOfType(componentType);
+                case SearchMethods.FindObjectOfTypeIncludeInactive:
+                    return GameObject.FindObjectOfType(componentType, true);
+                case SearchMethods.FindObjectsOfType:
+                    ThrowIfNonArrayType(componentType, searchMethod);
+                    return typeof(UniInjectGenericMethodHolder)
+                        .GetMethod("FindObjectsOfType")
+                        .MakeGenericMethod(componentType.GetElementType())
+                        .Invoke(script, new object[] { script, false });
+                case SearchMethods.FindObjectsOfTypeIncludeInactive:
+                    ThrowIfNonArrayType(componentType, searchMethod);
+                    return typeof(UniInjectGenericMethodHolder)
+                        .GetMethod("FindObjectsOfType")
+                        .MakeGenericMethod(componentType.GetElementType())
+                        .Invoke(script, new object[] { script, true });
                 default:
-                    throw new InjectionException($" Unkown Unity search method {searchMethod}");
+                    throw new InjectionException($" Unknown Unity search method {searchMethod}");
+            }
+        }
+
+        private static void ThrowIfNonArrayType(Type type, SearchMethods searchMethod)
+        {
+            if (!type.IsArray)
+            {
+                throw new InjectionException("SearchMethod " + searchMethod + " requires an array type to be injected.");
+            }
+        }
+
+        // Workaround for ambiguous generic method invocation when using reflection:
+        // put generic methods that should be called here where there are unambiguous.
+        // Methods must be public to be called via reflection but should not be part of public UniInject interface.
+        private static class UniInjectGenericMethodHolder
+        {
+            public static T[] GetComponentsInChildren<T>(Component component, bool includeInactive)
+                where T : Component
+            {
+                return component.GetComponentsInChildren<T>(includeInactive);
+            }
+
+            public static T[] GetComponentsInParent<T>(Component component, bool includeInactive)
+                where T : Component
+            {
+                return component.GetComponentsInParent<T>(includeInactive);
+            }
+
+            public static T[] FindObjectsOfType<T>(bool includeInactive)
+                where T : Component
+            {
+                return GameObject.FindObjectsOfType<T>(includeInactive);
             }
         }
     }
