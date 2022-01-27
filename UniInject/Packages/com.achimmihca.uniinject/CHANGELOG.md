@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [5.0.0] - TBA
+## [5.0.1] - 2022-01-27
 - Injector injects itself if no other binding found
 - Always do injection on newly created instances
 - Added extension method to create child injector
