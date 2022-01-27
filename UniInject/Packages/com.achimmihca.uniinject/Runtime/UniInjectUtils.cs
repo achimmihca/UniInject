@@ -127,13 +127,13 @@ namespace UniInject
                     return typeof(UniInjectGenericMethodHolder)
                         .GetMethod("FindObjectsOfType")
                         .MakeGenericMethod(componentType.GetElementType())
-                        .Invoke(script, new object[] { script, false });
+                        .Invoke(script, new object[] { false });
                 case SearchMethods.FindObjectsOfTypeIncludeInactive:
                     ThrowIfNonArrayType(componentType, searchMethod);
                     return typeof(UniInjectGenericMethodHolder)
                         .GetMethod("FindObjectsOfType")
                         .MakeGenericMethod(componentType.GetElementType())
-                        .Invoke(script, new object[] { script, true });
+                        .Invoke(script, new object[] { true });
                 default:
                     throw new InjectionException($" Unknown Unity search method {searchMethod}");
             }

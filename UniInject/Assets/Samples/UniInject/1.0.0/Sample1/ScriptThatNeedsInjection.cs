@@ -35,6 +35,9 @@ public class ScriptThatNeedsInjection : MonoBehaviour, INeedInjection
     [Inject(SearchMethod = SearchMethods.FindObjectOfType)]
     private readonly Canvas canvas;
 
+    [Inject(SearchMethod = SearchMethods.FindObjectsOfTypeIncludeInactive)]
+    private RectTransform[] rectTransforms;
+
     // Inject property
     [Inject]
     private DemoBinder dependencyInjectionDemoBinder { get; set; }
@@ -105,6 +108,8 @@ public class ScriptThatNeedsInjection : MonoBehaviour, INeedInjection
         Debug.Log("Child: " + child);
         string childrenCsv = string.Join(", ", children.Select(it => it.ToString()));
         Debug.Log("Children: " + children + " with elements: " + childrenCsv);
+        string rectTransformsCsv = string.Join(", ", rectTransforms.Select(it => it.ToString()));
+        Debug.Log("RectTransforms: " + rectTransforms + " with elements: " + rectTransformsCsv);
         Debug.Log("Sibling Component: " + siblingComponent);
 
         Debug.Log("Canvas: " + canvas);
