@@ -1,6 +1,6 @@
 {
     "name": "com.achimmihca.uniinject",
-    "version": "4.0.0",
+    "version": "5.0.0",
     "displayName": "UniInject",
     "description": "Dependency Injection for Unity3D",
     "dependencies": {

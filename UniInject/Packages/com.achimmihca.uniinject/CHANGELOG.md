@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [5.0.0] - TBA
+- Injector injects itself if no other binding found
+- Always do injection on newly created instances
+- Added extension method to create child injector
+- Added Unity's component search methods for collections (e.g. GetComponentsInChildren, FindObjectsOfType)
+- Search in parent injector if no VisualElement found
+- Option to disable search in parent injector
+
 ## [4.0.0] - 2022-01-16
 - Allow injection of list of VisualElement
 - Better error messages for nested exceptions
