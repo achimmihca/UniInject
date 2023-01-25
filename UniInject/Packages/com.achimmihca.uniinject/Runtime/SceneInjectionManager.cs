@@ -4,18 +4,16 @@ using System.Diagnostics;
 using UniInject.Extensions;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UIElements;
 using Debug = UnityEngine.Debug;
 
 namespace UniInject
 {
     public class SceneInjectionManager : MonoBehaviour
     {
-        public ESceneInjectionStatus SceneInjectionStatus { get; private set; } = ESceneInjectionStatus.Pending;
+        public ESceneInjectionStatus SceneInjectionStatus { get; protected set; } = ESceneInjectionStatus.Pending;
         [Tooltip("Only inject scripts with marker interface INeedInjection")]
         public bool onlyInjectScriptsWithMarkerInterface;
         public bool logTime;
-        public string uiDocumentTagName;
         public Injector SceneInjector { get; protected set; }
 
         protected readonly List<IBinder> binders = new List<IBinder>();
@@ -49,24 +47,6 @@ namespace UniInject
             // This way it can be injected at the scene start
             // and be used to inject newly created scripts at runtime.
             SceneInjector.AddBindingForInstance(SceneInjector);
-
-            // Try to find and bind a UIDocument
-            if (!string.IsNullOrEmpty(uiDocumentTagName))
-            {
-                GameObject uiDocumentGameObject = GameObject.FindGameObjectWithTag(uiDocumentTagName);
-                if (uiDocumentGameObject != null)
-                {
-                    UIDocument uiDocument = uiDocumentGameObject.GetComponent<UIDocument>();
-                    if (uiDocument != null)
-                    {
-                        SceneInjector.AddBindingForInstance(uiDocument);
-                    }
-                    else
-                    {
-                        Debug.LogWarning($"No UIDocument found for tag {uiDocumentTagName}");
-                    }
-                }
-            }
 
             // (1) Iterate over scene hierarchy, thereby
             // (a) find IBinder instances.
@@ -117,11 +97,23 @@ namespace UniInject
                 List<IBinding> bindings = binder.GetBindings();
                 foreach (IBinding binding in bindings)
                 {
-                    SceneInjector.AddBinding(binding);
+                    DoAddBinding(binder, binding);
                 }
             }
 
             StopAndLogTime(stopwatch, $"SceneInjectionManager - Creating bindings took <ms> ms");
+        }
+
+        protected virtual void DoAddBinding(IBinder binder, IBinding binding)
+        {
+            try
+            {
+                SceneInjector.AddBinding(binding, RebindingBehavior.Throw);
+            }
+            catch (RebindingException ex)
+            {
+                Debug.LogWarning($"{ex.Message} while processing {binder}");
+            }
         }
 
         protected virtual void InjectScriptsThatNeedInjection()
