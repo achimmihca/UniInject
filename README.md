@@ -142,8 +142,8 @@ public class DialogControl : INeedInjection, IInjectionFinishedListener
 
 VisualElements are searched from the Injector's RootVisualElement.
 
-- This field is set by the SceneInjectionManager to the VisualElement of the UIDocument that is tagged "UIDocument".
-- This field can be set manually. This way it is possible to inject instances from any VisualElement, for example a dialog that is created at runtime:
+- Therefor, a UIDocument can be bound like other bindings.
+- As alternative, this field can be set manually. This way it is possible to inject instances from any VisualElement, for example a dialog that is created at runtime:
     ```
     var uxmlDialogInstance = uxmlDialog.CloneTree();
     sceneInjector.WithRootVisualElement(uxmlDialogInstance).Inject(dialogControlInstance);
