@@ -11,26 +11,36 @@ namespace UniInject
 {
     public class SceneInjectionManager : MonoBehaviour
     {
+        public ESceneInjectionStatus SceneInjectionStatus { get; private set; } = ESceneInjectionStatus.Pending;
+        [Tooltip("Only inject scripts with marker interface INeedInjection")]
+        public bool onlyInjectScriptsWithMarkerInterface;
+        public bool logTime;
+        public string uiDocumentTagName;
+        public Injector SceneInjector { get; protected set; }
+
         protected readonly List<IBinder> binders = new List<IBinder>();
         protected readonly List<UnityEngine.Object> scriptsThatNeedInjection = new List<UnityEngine.Object>();
         protected readonly List<ISceneInjectionFinishedListener> sceneInjectionFinishedListeners = new List<ISceneInjectionFinishedListener>();
 
-        public Injector SceneInjector { get; protected set; }
-
-        [Tooltip("Only inject scripts with marker interface INeedInjection")]
-        public bool onlyInjectScriptsWithMarkerInterface;
-
-        public bool logTime;
-
-        public string uiDocumentTagName;
-
         protected virtual void Awake()
         {
+            if (SceneInjectionStatus != ESceneInjectionStatus.Pending)
+            {
+                return;
+            }
+
             DoSceneInjection();
         }
 
         public virtual void DoSceneInjection()
         {
+            if (SceneInjectionStatus != ESceneInjectionStatus.Pending)
+            {
+                Debug.LogWarning("Attempt to redo scene injection.");
+                return;
+            }
+            SceneInjectionStatus = ESceneInjectionStatus.Started;
+
             Stopwatch stopwatch = CreateAndStartStopwatch();
 
             SceneInjector = UniInjectUtils.CreateInjector();
@@ -72,6 +82,7 @@ namespace UniInject
             StopAndLogTime(stopwatch, $"SceneInjectionManager - Analyzing, binding and injecting scene took <ms> ms");
 
             // (4) Notify listeners that scene injection has finished
+            SceneInjectionStatus = ESceneInjectionStatus.Finished;
             foreach (ISceneInjectionFinishedListener listener in sceneInjectionFinishedListeners)
             {
                 listener.OnSceneInjectionFinished();
