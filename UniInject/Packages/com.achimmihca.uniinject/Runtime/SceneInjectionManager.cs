@@ -11,12 +11,11 @@ namespace UniInject
 {
     public class SceneInjectionManager : MonoBehaviour
     {
-        private readonly List<IBinder> binders = new List<IBinder>();
-        private readonly List<UnityEngine.Object> scriptsThatNeedInjection = new List<UnityEngine.Object>();
+        protected readonly List<IBinder> binders = new List<IBinder>();
+        protected readonly List<UnityEngine.Object> scriptsThatNeedInjection = new List<UnityEngine.Object>();
+        protected readonly List<ISceneInjectionFinishedListener> sceneInjectionFinishedListeners = new List<ISceneInjectionFinishedListener>();
 
-        private readonly List<ISceneInjectionFinishedListener> sceneInjectionFinishedListeners = new List<ISceneInjectionFinishedListener>();
-
-        private Injector sceneInjector;
+        public Injector SceneInjector { get; protected set; }
 
         [Tooltip("Only inject scripts with marker interface INeedInjection")]
         public bool onlyInjectScriptsWithMarkerInterface;
@@ -25,43 +24,21 @@ namespace UniInject
 
         public string uiDocumentTagName;
 
-        public static SceneInjectionManager Instance
+        protected virtual void Awake()
         {
-            get
-            {
-                GameObject gameObject = GameObject.FindGameObjectWithTag("SceneInjectionManager");
-                if (gameObject != null)
-                {
-                    return gameObject.GetComponent<SceneInjectionManager>();
-                }
-                return null;
-            }
+            DoSceneInjection();
         }
 
-        void Awake()
-        {
-            DoInjection();
-        }
-
-        void OnDestroy()
-        {
-            if (UniInjectUtils.SceneInjector == sceneInjector)
-            {
-                UniInjectUtils.SceneInjector = null;
-            }
-        }
-
-        public void DoInjection()
+        public virtual void DoSceneInjection()
         {
             Stopwatch stopwatch = CreateAndStartStopwatch();
 
-            sceneInjector = UniInjectUtils.CreateInjector();
-            UniInjectUtils.SceneInjector = sceneInjector;
+            SceneInjector = UniInjectUtils.CreateInjector();
 
             // Bind the scene injector itself.
             // This way it can be injected at the scene start
             // and be used to inject newly created scripts at runtime.
-            sceneInjector.AddBindingForInstance(sceneInjector);
+            SceneInjector.AddBindingForInstance(SceneInjector);
 
             // Try to find and bind a UIDocument
             if (!string.IsNullOrEmpty(uiDocumentTagName))
@@ -72,7 +49,7 @@ namespace UniInject
                     UIDocument uiDocument = uiDocumentGameObject.GetComponent<UIDocument>();
                     if (uiDocument != null)
                     {
-                        sceneInjector.AddBindingForInstance(uiDocument);
+                        SceneInjector.AddBindingForInstance(uiDocument);
                     }
                     else
                     {
@@ -92,7 +69,7 @@ namespace UniInject
             // (3) Inject the bindings from the sceneInjector into the objects that need injection.
             InjectScriptsThatNeedInjection();
 
-            StopAndLogTime(stopwatch, $"SceneInjectionManager - Analyzing, binding and injecting scene took {stopwatch.ElapsedMilliseconds} ms");
+            StopAndLogTime(stopwatch, $"SceneInjectionManager - Analyzing, binding and injecting scene took <ms> ms");
 
             // (4) Notify listeners that scene injection has finished
             foreach (ISceneInjectionFinishedListener listener in sceneInjectionFinishedListeners)
@@ -101,21 +78,26 @@ namespace UniInject
             }
         }
 
-        private void AnalyzeScene()
+        protected virtual void AnalyzeScene()
         {
             Stopwatch stopwatch = CreateAndStartStopwatch();
 
             Scene scene = SceneManager.GetActiveScene();
-            GameObject[] rootObjects = scene.GetRootGameObjects();
+            GameObject[] rootObjects = GetRootGameObjects(scene);
             foreach (GameObject rootObject in rootObjects)
             {
                 AnalyzeScriptsRecursively(rootObject);
             }
 
-            StopAndLogTime(stopwatch, $"SceneInjectionManager - Analyzing scene {scene.name} took {stopwatch.ElapsedMilliseconds} ms");
+            StopAndLogTime(stopwatch, $"SceneInjectionManager - Analyzing scene {scene.name} took <ms> ms");
         }
 
-        private void CreateBindings()
+        protected virtual GameObject[] GetRootGameObjects(Scene scene)
+        {
+            return scene.GetRootGameObjects();
+        }
+
+        protected virtual void CreateBindings()
         {
             Stopwatch stopwatch = CreateAndStartStopwatch();
 
@@ -124,14 +106,14 @@ namespace UniInject
                 List<IBinding> bindings = binder.GetBindings();
                 foreach (IBinding binding in bindings)
                 {
-                    sceneInjector.AddBinding(binding);
+                    SceneInjector.AddBinding(binding);
                 }
             }
 
-            StopAndLogTime(stopwatch, $"SceneInjectionManager - Creating bindings took {stopwatch.ElapsedMilliseconds} ms");
+            StopAndLogTime(stopwatch, $"SceneInjectionManager - Creating bindings took <ms> ms");
         }
 
-        private void InjectScriptsThatNeedInjection()
+        protected virtual void InjectScriptsThatNeedInjection()
         {
             Stopwatch stopwatch = CreateAndStartStopwatch();
 
@@ -139,7 +121,7 @@ namespace UniInject
             {
                 try
                 {
-                    sceneInjector.Inject(script);
+                    DoInject(script);
                 }
                 catch (InjectionException e)
                 {
@@ -148,26 +130,38 @@ namespace UniInject
                 }
             }
 
-            StopAndLogTime(stopwatch, $"SceneInjectionManager - Injecting scripts took {stopwatch.ElapsedMilliseconds} ms");
+            StopAndLogTime(stopwatch, $"SceneInjectionManager - Injecting scripts took <ms> ms");
         }
 
-        private Stopwatch CreateAndStartStopwatch()
+        protected virtual void DoInject(UnityEngine.Object script)
         {
-            Stopwatch stopwatch = new Stopwatch();
+            SceneInjector.Inject(script);
+        }
+
+        protected virtual Stopwatch CreateAndStartStopwatch()
+        {
+            Stopwatch stopwatch = null;
+            if (logTime)
+            {
+                return stopwatch;
+            }
+
+            stopwatch = new Stopwatch();
             stopwatch.Start();
             return stopwatch;
         }
 
-        private void StopAndLogTime(Stopwatch stopwatch, string message)
+        protected virtual void StopAndLogTime(Stopwatch stopwatch, string message)
         {
-            stopwatch.Stop();
-            if (logTime)
+            if (stopwatch == null)
             {
-                UnityEngine.Debug.Log(message);
+                return;
             }
+            stopwatch.Stop();
+            UnityEngine.Debug.Log(message.Replace("<ms>", stopwatch.ElapsedMilliseconds.ToString()));
         }
 
-        private void AnalyzeScriptsRecursively(GameObject gameObject)
+        protected virtual void AnalyzeScriptsRecursively(GameObject gameObject)
         {
             MonoBehaviour[] scripts = gameObject.GetComponents<MonoBehaviour>();
             foreach (MonoBehaviour script in scripts)

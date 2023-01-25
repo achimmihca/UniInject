@@ -17,9 +17,6 @@ namespace UniInject
         // Global injector
         public static Injector GlobalInjector { get; set; } = new Injector(null);
 
-        // Injector for the current scene. The SceneInjectionManager will create and remove the instance.
-        public static Injector SceneInjector { get; internal set; }
-
         // Holds information how to instantiate objects of types during Dependency Injection.
         // This includes the parameters that must be resolved to call the constructor.
         private static readonly Dictionary<Type, ConstructorInjectionData> typeToConstructorInjectionDataMap = new Dictionary<Type, ConstructorInjectionData>();

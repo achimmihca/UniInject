@@ -1,4 +1,5 @@
-﻿using UniInject;
+﻿using System.Linq;
+using UniInject;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.UIElements;
@@ -19,6 +20,9 @@ public class ScriptThatNeedsInjection : MonoBehaviour, INeedInjection
     [Inject(SearchMethod = SearchMethods.GetComponentInChildren)]
     private ChildOfScriptThatNeedsInjection child;
 
+    [Inject(SearchMethod = SearchMethods.GetComponentsInChildren)]
+    private Transform[] children;
+
     // Inject property via GetComponentInParent
     [Inject(SearchMethod = SearchMethods.GetComponentInParent)]
     private ParentOfScriptThatNeedsInjection Parent { get; set; }
@@ -30,6 +34,9 @@ public class ScriptThatNeedsInjection : MonoBehaviour, INeedInjection
     // Inject readonly property via FindObjectOfType
     [Inject(SearchMethod = SearchMethods.FindObjectOfType)]
     private readonly Canvas canvas;
+
+    [Inject(SearchMethod = SearchMethods.FindObjectsOfTypeIncludeInactive)]
+    private RectTransform[] rectTransforms;
 
     // Inject property
     [Inject]
@@ -97,8 +104,14 @@ public class ScriptThatNeedsInjection : MonoBehaviour, INeedInjection
 
     void Start()
     {
+        SceneInjectionManager sceneInjectionManager = FindObjectOfType<SceneInjectionManager>();
+
         Debug.Log("Parent: " + Parent);
         Debug.Log("Child: " + child);
+        string childrenCsv = string.Join(", ", children.Select(it => it.ToString()));
+        Debug.Log("Children: " + children + " with elements: " + childrenCsv);
+        string rectTransformsCsv = string.Join(", ", rectTransforms.Select(it => it.ToString()));
+        Debug.Log("RectTransforms: " + rectTransforms + " with elements: " + rectTransformsCsv);
         Debug.Log("Sibling Component: " + siblingComponent);
 
         Debug.Log("Canvas: " + canvas);
@@ -118,8 +131,8 @@ public class ScriptThatNeedsInjection : MonoBehaviour, INeedInjection
         Debug.Log("Optional Image: " + optionalImage);
         Debug.Log("Optional uiText: " + uiText);
 
-        Debug.Log("The bound int: " + SceneInjector.GetValueForInjectionKey<int>());
-        Debug.Log("The bound instance of an interface: " + SceneInjector.GetValueForInjectionKey<IDemoInterface>());
+        Debug.Log("The bound int: " + sceneInjectionManager.SceneInjector.GetValueForInjectionKey<int>());
+        Debug.Log("The bound instance of an interface: " + sceneInjectionManager.SceneInjector.GetValueForInjectionKey<IDemoInterface>());
 
         Debug.Log("theUxmlLabel.text: " + theUxmlLabel.text);
         Debug.Log("theUxmlLabel2.text: " + theUxmlLabel2.text);
