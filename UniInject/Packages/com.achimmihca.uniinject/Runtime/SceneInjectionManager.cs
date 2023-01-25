@@ -143,13 +143,12 @@ namespace UniInject
 
         protected virtual Stopwatch CreateAndStartStopwatch()
         {
-            Stopwatch stopwatch = null;
-            if (logTime)
+            if (!logTime)
             {
-                return stopwatch;
+                return null;
             }
 
-            stopwatch = new Stopwatch();
+            Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
             return stopwatch;
         }
