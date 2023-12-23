@@ -21,7 +21,7 @@ public static class UniInjectExtensions
     {
         Injector childInjector = UniInjectUtils.CreateInjector(injector);
         IProvider provider = new ExistingInstanceProvider<VisualElement>(visualElement);
-        childInjector.AddBinding(new Binding("rootVisualElement", provider), RebindingBehavior.Ignore);
+        childInjector.AddBinding(new UniInject.Binding("rootVisualElement", provider), RebindingBehavior.Ignore);
         return childInjector;
     }
 }
