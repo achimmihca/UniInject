@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net.Sockets;
 using System.Reflection;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -155,9 +153,14 @@ namespace UniInject
             {
                 InjectMemberFromBindings(target, injectionData.MemberInfo, injectionData.InjectionKeys, injectionData.isOptional);
             }
-            else if (target is MonoBehaviour)
+            else if (target is MonoBehaviour
+                     || injectionData.searchMethod
+                         is SearchMethods.FindObjectOfType
+                         or SearchMethods.FindObjectOfTypeIncludeInactive
+                         or SearchMethods.FindObjectsOfType
+                         or SearchMethods.FindObjectsOfTypeIncludeInactive)
             {
-                InjectMemberFromUnitySearchMethod(target as MonoBehaviour, injectionData.MemberInfo, injectionData.searchMethod, injectionData.isOptional);
+                InjectMemberFromUnitySearchMethod(target, injectionData.MemberInfo, injectionData.searchMethod, injectionData.isOptional);
             }
             else
             {
@@ -403,7 +406,7 @@ namespace UniInject
             }
         }
 
-        private void InjectMemberFromUnitySearchMethod(MonoBehaviour script, MemberInfo memberInfo, SearchMethods searchMethod, bool isOptional)
+        private void InjectMemberFromUnitySearchMethod(object script, MemberInfo memberInfo, SearchMethods searchMethod, bool isOptional)
         {
             Type componentType = ReflectionUtils.GetTypeOfFieldOrProperty(script, memberInfo);
 
@@ -412,7 +415,7 @@ namespace UniInject
             if (component == null)
             {
                 // No mockup found, thus use the real Unity search method.
-                component = UniInjectUtils.InvokeUnitySearchMethod(script, searchMethod, componentType);
+                component = UniInjectUtils.InvokeUnitySearchMethod(script as MonoBehaviour, searchMethod, componentType);
             }
 
             if (component != null)
@@ -427,18 +430,18 @@ namespace UniInject
                 }
                 else
                 {
-                    throw new InjectionException($"Cannot inject member '{memberInfo}' of {script.name}."
+                    throw new InjectionException($"Cannot inject member '{memberInfo}' of {script.GetType()}."
                         + $" Only Fields and Properties are supported for component injection via Unity methods.");
                 }
             }
             else if (!isOptional)
             {
-                throw new InjectionException($"Cannot inject member '{memberInfo.Name}' of {script.name}."
+                throw new InjectionException($"Cannot inject member '{memberInfo.Name}' of {script.GetType()}."
                     + $" No component of type {componentType} found using method {searchMethod}");
             }
         }
 
-        private object GetComponentFromUnitySearchMethodMockups(MonoBehaviour script, SearchMethods searchMethod, Type componentType)
+        private object GetComponentFromUnitySearchMethodMockups(object script, SearchMethods searchMethod, Type componentType)
         {
             foreach (UnitySearchMethodMockup unitySearchMethodMockup in unitySearchMethodMockups)
             {
@@ -511,7 +514,7 @@ namespace UniInject
             injectionKeyToProviderMap.TryGetValue(injectionKey, out IProvider provider);
 
             if (provider == null
-                && injectionKey is System.Type type
+                && injectionKey is Type type
                 && typeof(Injector).IsAssignableFrom(type))
             {
                 // Special case: When looking for an Injector, then directly return this instance.
@@ -569,7 +572,7 @@ namespace UniInject
 
         private class UnitySearchMethodMockup
         {
-            public MonoBehaviour callingScript;
+            public object callingScript;
             public SearchMethods searchMethod;
             public object searchResult;
 

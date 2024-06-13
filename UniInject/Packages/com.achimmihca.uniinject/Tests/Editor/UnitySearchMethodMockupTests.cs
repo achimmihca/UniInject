@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using System.Collections.Generic;
+using NUnit.Framework;
 using UniInject;
 using UnityEngine;
 
@@ -7,12 +8,21 @@ namespace UniInject.Tests
 
     public class UnitySearchMethodMockupTests
     {
+        private readonly List<GameObject> createdGameObjects = new List<GameObject>();
+
+        [TearDown]
+        public void TearDown()
+        {
+            createdGameObjects.ForEach(Object.DestroyImmediate);
+        }
+
         [Test]
         public void SearchMethodMockupTest()
         {
             Injector injector = UniInjectUtils.CreateInjector();
 
             GameObject gameObject = new GameObject();
+            createdGameObjects.Add(gameObject);
             ScriptThatNeedsInjectionFromSceneHierarchy script = gameObject.AddComponent<ScriptThatNeedsInjectionFromSceneHierarchy>();
 
             injector.MockUnitySearchMethod(script, SearchMethods.GetComponent, new TextHolderImpl("sibling"));
@@ -29,7 +39,7 @@ namespace UniInject.Tests
             Assert.AreEqual("parent", script.parentComponent.GetText());
             Assert.AreEqual("other", script.otherComponent.GetText());
 
-            GameObject.DestroyImmediate(gameObject);
+            Object.DestroyImmediate(gameObject);
         }
 
         [Test]
@@ -38,9 +48,11 @@ namespace UniInject.Tests
             Injector injector = UniInjectUtils.CreateInjector();
 
             GameObject gameObject1 = new GameObject();
+            createdGameObjects.Add(gameObject1);
             ScriptThatNeedsInjectionFromSceneHierarchy script1 = gameObject1.AddComponent<ScriptThatNeedsInjectionFromSceneHierarchy>();
 
             GameObject gameObject2 = new GameObject();
+            createdGameObjects.Add(gameObject2);
             ScriptThatNeedsInjectionFromSceneHierarchy script2 = gameObject1.AddComponent<ScriptThatNeedsInjectionFromSceneHierarchy>();
 
             // GetComponent is mocked only for script1.
@@ -63,8 +75,8 @@ namespace UniInject.Tests
             Assert.IsNull(script2.parentComponent);
             Assert.AreEqual("other", script2.otherComponent.GetText());
 
-            GameObject.DestroyImmediate(gameObject1);
-            GameObject.DestroyImmediate(gameObject2);
+            Object.DestroyImmediate(gameObject1);
+            Object.DestroyImmediate(gameObject2);
         }
 
         public class ScriptThatNeedsInjectionFromSceneHierarchy : MonoBehaviour

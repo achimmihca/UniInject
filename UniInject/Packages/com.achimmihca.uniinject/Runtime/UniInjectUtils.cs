@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 // Ignore warnings about fields that always have the same value.
 // The logDebugInfos flag will be set in code if a developer needs it.
@@ -74,6 +75,31 @@ namespace UniInject
             }
         }
 
+        public static object InvokeUnitySearchMethod(SearchMethods searchMethod, Type componentType)
+        {
+            switch (searchMethod)
+            {
+                case SearchMethods.FindObjectOfType:
+                    return Object.FindObjectOfType(componentType);
+                case SearchMethods.FindObjectOfTypeIncludeInactive:
+                    return Object.FindObjectOfType(componentType, true);
+                case SearchMethods.FindObjectsOfType:
+                    ThrowIfNonArrayType(componentType, searchMethod);
+                    return typeof(UniInjectGenericMethodHolder)
+                        .GetMethod("FindObjectsOfType")
+                        .MakeGenericMethod(componentType.GetElementType())
+                        .Invoke(new object(), new object[] { false });
+                case SearchMethods.FindObjectsOfTypeIncludeInactive:
+                    ThrowIfNonArrayType(componentType, searchMethod);
+                    return typeof(UniInjectGenericMethodHolder)
+                        .GetMethod("FindObjectsOfType")
+                        .MakeGenericMethod(componentType.GetElementType())
+                        .Invoke(new object(), new object[] { true });
+                default:
+                    throw new InjectionException($"SearchMethod '{searchMethod}' requires a MonoBehavior instance to search form.");
+            }
+        }
+
         public static object InvokeUnitySearchMethod(MonoBehaviour script, SearchMethods searchMethod, Type componentType)
         {
             switch (searchMethod)
@@ -116,21 +142,10 @@ namespace UniInject
                         .Invoke(script, new object[] { script, true });
 
                 case SearchMethods.FindObjectOfType:
-                    return GameObject.FindObjectOfType(componentType);
                 case SearchMethods.FindObjectOfTypeIncludeInactive:
-                    return GameObject.FindObjectOfType(componentType, true);
                 case SearchMethods.FindObjectsOfType:
-                    ThrowIfNonArrayType(componentType, searchMethod);
-                    return typeof(UniInjectGenericMethodHolder)
-                        .GetMethod("FindObjectsOfType")
-                        .MakeGenericMethod(componentType.GetElementType())
-                        .Invoke(script, new object[] { false });
                 case SearchMethods.FindObjectsOfTypeIncludeInactive:
-                    ThrowIfNonArrayType(componentType, searchMethod);
-                    return typeof(UniInjectGenericMethodHolder)
-                        .GetMethod("FindObjectsOfType")
-                        .MakeGenericMethod(componentType.GetElementType())
-                        .Invoke(script, new object[] { true });
+                    return InvokeUnitySearchMethod(searchMethod, componentType);
                 default:
                     throw new InjectionException($" Unknown Unity search method {searchMethod}");
             }
