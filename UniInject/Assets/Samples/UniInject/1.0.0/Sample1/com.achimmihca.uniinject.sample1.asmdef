@@ -1,7 +1,10 @@
 {
-	"name": "com.achimmihca.uniinject.sample1",
-	"references": [
-		"com.achimmihca.uniinject"
+    "name": "com.achimmihca.uniinject.sample1",
+    "rootNamespace": "",
+    "references": [
+        "com.achimmihca.uniinject",
+        "UnityEngine.UI",
+        "Unity.InputSystem"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

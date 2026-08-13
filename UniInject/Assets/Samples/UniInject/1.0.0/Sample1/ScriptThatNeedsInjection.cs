@@ -1,9 +1,6 @@
 ﻿using System.Linq;
 using UniInject;
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.UIElements;
-using static UniInject.UniInjectUtils;
 
 // Ignore warnings about unassigned fields.
 // Their values are injected, but this is not visible to the compiler.
@@ -52,7 +49,7 @@ public class ScriptThatNeedsInjection : MonoBehaviour, INeedInjection
     private UnityEngine.UI.Image optionalImage;
 
     [Inject(SearchMethod = SearchMethods.GetComponentInChildren, Optional = true)]
-    private Text uiText;
+    private UnityEngine.UI.Text uiText;
 
     // Inject property using a specific key instead of the type.
     [Inject(Key = "author")]
