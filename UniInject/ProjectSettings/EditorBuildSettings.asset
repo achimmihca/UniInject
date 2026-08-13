@@ -6,6 +6,11 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/DependencyInjectionDemo/DependencyInjectionDemoScene.unity
-    guid: d53741b1bceb47142b39bf47bcdef3ec
-  m_configObjects: {}
+    path: Assets/Samples/UniInject/1.0.0/Sample1/DemoScene.unity
+    guid: 069e3154fa8dd1245b426ff8f51e8b8d
+  - enabled: 1
+    path: Assets/Samples/UniInject/1.0.0/Sample1/OtherScene.unity
+    guid: 756af0c556c932042ad188fbe444a240
+  m_configObjects:
+    com.unity.input.settings: {fileID: 11400000, guid: 7d9de8aba37ad0940a3df96a7f577682, type: 2}
+    com.unity.input.settings.actions: {fileID: -944628639613478452, guid: abc02512f2698d349ba5e358a25c2929, type: 3}
