@@ -18,6 +18,8 @@ namespace UniInject
         // Global injector
         public static Injector GlobalInjector { get; set; } = new Injector(null);
 
+        public static DefaultRebindingBehavior DefaultRebindingBehavior { get; set; } = DefaultRebindingBehavior.Ignore;
+
         // Holds information how to instantiate objects of types during Dependency Injection.
         // This includes the parameters that must be resolved to call the constructor.
         private static readonly Dictionary<Type, ConstructorInjectionData> typeToConstructorInjectionDataMap = new Dictionary<Type, ConstructorInjectionData>();

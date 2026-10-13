@@ -538,13 +538,17 @@ namespace UniInject
         }
 
         public void AddBinding(IBinding binding,
-            RebindingBehavior rebindingBehavior = RebindingBehavior.LogWarning)
+            RebindingBehavior rebindingBehavior = RebindingBehavior.Default)
         {
+            RebindingBehavior effectiveRebindingBehavior = rebindingBehavior == RebindingBehavior.Default
+                ? Enum.Parse<RebindingBehavior>(UniInjectUtils.DefaultRebindingBehavior.ToString(), true)
+                : rebindingBehavior;
+
             object injectionKey = binding.GetKey();
-            if (rebindingBehavior != RebindingBehavior.Ignore
+            if (effectiveRebindingBehavior != RebindingBehavior.Ignore
                 && injectionKeyToProviderMap.ContainsKey(injectionKey))
             {
-                switch (rebindingBehavior)
+                switch (effectiveRebindingBehavior)
                 {
                     case RebindingBehavior.LogWarning:
                         Debug.LogWarning($"Re-binding of key {injectionKey}");

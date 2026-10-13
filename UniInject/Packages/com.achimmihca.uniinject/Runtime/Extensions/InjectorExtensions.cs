@@ -6,7 +6,7 @@ namespace UniInject.Extensions
     {
         public static void AddBindingForInstance<T>(this Injector injector,
             T instance,
-            RebindingBehavior rebindingBehavior = RebindingBehavior.LogWarning)
+            RebindingBehavior rebindingBehavior = RebindingBehavior.Default)
         {
             injector.AddBindingForInstance(typeof(T), instance, rebindingBehavior);
         }
@@ -14,7 +14,7 @@ namespace UniInject.Extensions
         public static void AddBindingForInstance<T>(this Injector injector,
             object key,
             T instance,
-            RebindingBehavior rebindingBehavior = RebindingBehavior.LogWarning)
+            RebindingBehavior rebindingBehavior = RebindingBehavior.Default)
         {
             IBinding binding = new Binding(key, new ExistingInstanceProvider<T>(instance));
             injector.AddBinding(binding, rebindingBehavior);
@@ -22,7 +22,7 @@ namespace UniInject.Extensions
 
         public static void AddBindings(this Injector injector,
             BindingBuilder bindingBuilder,
-            RebindingBehavior rebindingBehavior = RebindingBehavior.LogWarning)
+            RebindingBehavior rebindingBehavior = RebindingBehavior.Default)
         {
             List<IBinding> newBindings = bindingBuilder.GetBindings();
             newBindings.ForEach(newBinding => injector.AddBinding(newBinding, rebindingBehavior));

@@ -53,4 +53,65 @@ namespace UniInject.Tests
         }
     }
 
+    public class RebindingBehaviorTests
+    {
+        [TearDown]
+        public void TearDown()
+        {
+            UniInjectUtils.DefaultRebindingBehavior = DefaultRebindingBehavior.Ignore;
+        }
+
+        [Test]
+        public void GlobalDefaultRebindingBehaviorThrowTakesEffectOnAddBinding()
+        {
+            UniInjectUtils.DefaultRebindingBehavior = DefaultRebindingBehavior.Throw;
+
+            Injector injector = UniInjectUtils.CreateInjector();
+            injector.AddBindingForInstance("value1");
+
+            Assert.Throws<RebindingException>(() =>
+            {
+                injector.AddBindingForInstance("value2");
+            });
+        }
+
+        [Test]
+        public void ExplicitRebindingBehaviorOverridesGlobalDefault()
+        {
+            UniInjectUtils.DefaultRebindingBehavior = DefaultRebindingBehavior.Throw;
+
+            Injector injector = UniInjectUtils.CreateInjector();
+            injector.AddBindingForInstance("value1");
+
+            // Explicit Ignore overrides global Throw
+            Assert.DoesNotThrow(() =>
+            {
+                injector.AddBindingForInstance("value2", RebindingBehavior.Ignore);
+            });
+            Assert.AreEqual("value2", injector.GetValueForInjectionKey<string>());
+
+            UniInjectUtils.DefaultRebindingBehavior = DefaultRebindingBehavior.Ignore;
+
+            // Explicit Throw overrides global Ignore
+            Assert.Throws<RebindingException>(() =>
+            {
+                injector.AddBindingForInstance("value3", RebindingBehavior.Throw);
+            });
+        }
+
+        [Test]
+        public void GlobalDefaultRebindingBehaviorIgnoreDoesNotThrow()
+        {
+            UniInjectUtils.DefaultRebindingBehavior = DefaultRebindingBehavior.Ignore;
+
+            Injector injector = UniInjectUtils.CreateInjector();
+            injector.AddBindingForInstance("value1");
+
+            Assert.DoesNotThrow(() =>
+            {
+                injector.AddBindingForInstance("value2");
+            });
+            Assert.AreEqual("value2", injector.GetValueForInjectionKey<string>());
+        }
+    }
 }
