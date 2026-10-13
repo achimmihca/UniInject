@@ -19,10 +19,5 @@
       "email": "anst.dev@gmail.com",
       "url": "https://github.com/achimmihca/UniInject"
     },
-	"samples": [
-    {
-     "displayName": "Sample1",
-     "description": "Dependency injection demo scene",
-     "path": "Samples~/SampleFolder1"
-    }]
+	"samples": []
 }
